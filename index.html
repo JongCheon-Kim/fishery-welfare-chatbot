@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>경상남도 어촌복지 원스톱 AI 도우미</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Noto Sans KR -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kakao: {
+                            yellow: '#FEE500',
+                            bg: '#BACEE0',
+                            bubble: '#FFFFFF',
+                            userBubble: '#FEE500',
+                            darkText: '#191919',
+                            header: '#FEE500'
+                        },
+                        ocean: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#035388',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            touch-action: manipulation;
+            background-color: #f1f5f9;
+        }
+
+        /* Phone Frame Styling (Optimized Smartphone Proportions) */
+        .phone-frame {
+            max-width: 380px;
+            width: 100%;
+            height: 92vh;
+            max-height: 850px;
+            border-radius: 44px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 10px #1e293b;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background-color: #BACEE0;
+        }
+
+        /* Accessibility Font & High-Contrast Modes */
+        body.large-text .chat-bubble {
+            font-size: 1.15rem !important;
+            line-height: 1.6 !important;
+        }
+        body.large-text .btn-txt {
+            font-size: 1rem !important;
+        }
+
+        body.high-contrast .phone-frame {
+            background-color: #000000 !important;
+        }
+        body.high-contrast .kakao-header-bg {
+            background-color: #1a1a1a !important;
+            color: #ffff00 !important;
+            border-bottom: 2px solid #ffff00;
+        }
+        body.high-contrast .chat-bubble-bot {
+            background-color: #121212 !important;
+            color: #ffffff !important;
+            border: 2px solid #00ffff !important;
+        }
+        body.high-contrast .chat-bubble-user {
+            background-color: #ffff00 !important;
+            color: #000000 !important;
+            font-weight: bold;
+        }
+
+        /* Custom Scrollbars */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Combobox Item List Card Styling */
+        .select-item-card {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+        .select-item-card:hover {
+            background-color: #f8fafc;
+        }
+        .select-item-card:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-2 sm:p-4">
+
+    <div class="phone-frame mx-auto shadow-2xl flex flex-col justify-between">
+
+        <!-- Phone Top Header Bar -->
+        <header class="bg-white border-b border-slate-200 px-3 py-2.5 flex items-center justify-between shrink-0 z-20 kakao-header-bg">
+            <div class="flex items-center space-x-2 min-w-0 flex-1 pr-1">
+                <div class="w-8 h-8 bg-kakao-yellow rounded-xl flex items-center justify-center text-slate-900 font-extrabold text-base shrink-0 shadow-sm border border-yellow-400">
+                    <i class="fa-solid fa-anchor text-slate-900"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <h1 class="font-bold text-xs sm:text-sm text-slate-900 tracking-tight leading-tight flex items-center gap-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                        <span>경남 어촌복지 AI 도우미</span>
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse shrink-0" title="서비스 정상 작동중"></span>
+                    </h1>
+                    <p class="text-[10px] text-slate-500 font-medium truncate">통합 복지 DB & 구인구직 매칭 v3.5</p>
+                </div>
+            </div>
+
+            <!-- Header Accessibility & Settings Buttons -->
+            <div class="flex items-center space-x-0.5 sm:space-x-1 shrink-0">
+                <button onclick="toggleLargeFont()" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg text-xs font-bold transition" title="글씨 크기 변환">
+                    <i class="fa-solid fa-text-height text-sm"></i>
+                </button>
+                <button onclick="toggleHighContrast()" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg text-xs font-bold transition" title="고대비 모드">
+                    <i class="fa-solid fa-circle-half-stroke text-sm"></i>
+                </button>
+                <button onclick="openApiSettingsModal()" class="p-1.5 text-slate-700 hover:bg-slate-100 rounded-lg transition" title="API 설정 및 연동">
+                    <i class="fa-solid fa-gear text-base sm:text-lg"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- KakaoTalk Style Chat Window Area -->
+        <div id="chatHistory" class="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+            
+            <div class="flex items-start space-x-2.5">
+                <div class="w-9 h-9 rounded-xl bg-kakao-yellow text-slate-900 flex items-center justify-center font-bold text-base shrink-0 shadow-sm border border-yellow-300">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="space-y-1 max-w-[85%]">
+                    <span class="text-xs text-slate-600 font-semibold pl-1">경남복지 도우미</span>
+                    <div class="chat-bubble chat-bubble-bot bg-white text-slate-800 p-3.5 rounded-2xl rounded-tl-none shadow-sm text-sm sm:text-base leading-relaxed">
+                        <p class="font-bold text-slate-900 mb-1">
+                            반갑습니다! 어업인·여성·고령자·임산부·장애인 맞춤 어촌복지 AI 도우미입니다. 🌊
+                        </p>
+                        <p class="text-xs sm:text-sm text-slate-700 mb-2">
+                            어촌 현행 정책, <strong>농업·산림 우수 벤치마킹 복지</strong>, 그리고 <strong>어촌 일손 구인구직 매칭</strong>까지 원스톱으로 지원합니다.
+                        </p>
+                        <div class="grid grid-cols-2 gap-1.5 pt-1">
+                            <button onclick="openPolicyModal('WOMEN')" class="p-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold text-left flex items-center justify-between hover:bg-rose-100 transition">
+                                <span>👩 여성어업인 복지</span>
+                                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </button>
+                            <button onclick="openPolicyModal('PREGNANT')" class="p-2 bg-pink-50 text-pink-700 border border-pink-200 rounded-xl text-xs font-bold text-left flex items-center justify-between hover:bg-pink-100 transition">
+                                <span>🤰 임산부 지원</span>
+                                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </button>
+                            <button onclick="openPolicyModal('SENIOR')" class="p-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl text-xs font-bold text-left flex items-center justify-between hover:bg-amber-100 transition">
+                                <span>👵 고령 어업인</span>
+                                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </button>
+                            <button onclick="openPolicyModal('DISABLED')" class="p-2 bg-purple-50 text-purple-700 border border-purple-200 rounded-xl text-xs font-bold text-left flex items-center justify-between hover:bg-purple-100 transition">
+                                <span>♿ 장애 어업인</span>
+                                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Quick Action Navigation Bar -->
+        <div class="bg-white border-t border-slate-200 grid grid-cols-4 divide-x divide-slate-100 shrink-0 text-center">
+            <button onclick="startEligibilityDiagnosis()" class="py-2.5 px-1 hover:bg-slate-50 transition flex flex-col items-center justify-center space-y-0.5">
+                <i class="fa-solid fa-user-check text-rose-500 text-sm sm:text-base"></i>
+                <span class="text-[11px] sm:text-xs font-bold text-slate-700 btn-txt">맞춤진단</span>
+            </button>
+            <button onclick="openPolicyModal('ALL')" class="py-2.5 px-1 hover:bg-slate-50 transition flex flex-col items-center justify-center space-y-0.5">
+                <i class="fa-solid fa-book-bookmark text-ocean-600 text-sm sm:text-base"></i>
+                <span class="text-[11px] sm:text-xs font-bold text-slate-700 btn-txt">통합정책</span>
+            </button>
+            <button onclick="openJobModal()" class="py-2.5 px-1 hover:bg-slate-50 transition flex flex-col items-center justify-center space-y-0.5">
+                <i class="fa-solid fa-people-group text-emerald-600 text-sm sm:text-base"></i>
+                <span class="text-[11px] sm:text-xs font-bold text-slate-700 btn-txt">구인구직</span>
+            </button>
+            <button onclick="openBlindSpotModal()" class="py-2.5 px-1 hover:bg-slate-50 transition flex flex-col items-center justify-center space-y-0.5">
+                <i class="fa-solid fa-hand-holding-heart text-amber-500 text-sm sm:text-base"></i>
+                <span class="text-[11px] sm:text-xs font-bold text-slate-700 btn-txt">대리/제안</span>
+            </button>
+        </div>
+
+        <div class="relative bg-slate-50 border-t border-slate-200 p-2.5 shrink-0 flex items-center space-x-2">
+
+            <!-- Floating Combobox Dropdown Panel -->
+            <div id="autoKeywordsPanel" class="absolute bottom-[60px] left-2 right-2 bg-white rounded-2xl shadow-2xl border border-slate-300 z-30 hidden transition-all duration-200 max-h-[340px] flex flex-col overflow-hidden">
+                <div class="px-3 py-2 bg-slate-100 border-b border-slate-200 flex items-center justify-between shrink-0">
+                    <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                        <i class="fa-solid fa-list-check text-ocean-600"></i>
+                        <span>어촌복지 & 수산일자리 항목 선택</span>
+                    </span>
+                    <button onclick="hideKeywordsPanel()" class="text-slate-400 hover:text-slate-600 text-sm font-bold px-1">&times;</button>
+                </div>
+
+                <!-- Rich Combobox Scroll Area -->
+                <div id="comboboxItemList" class="flex-1 overflow-y-auto divide-y divide-slate-100">
+                    <!-- Dynamically populated via renderComboboxItems() -->
+                </div>
+            </div>
+
+            <!-- Camera Button (Invokes openOcrModal) -->
+            <button onclick="openOcrModal()" class="p-2 text-slate-500 hover:text-ocean-600 transition shrink-0" title="서류/환부 사진 촬영 및 스캔">
+                <i class="fa-solid fa-camera text-xl"></i>
+            </button>
+            
+            <!-- Microphone Voice Button (Invokes toggleVoiceRecognition) -->
+            <button id="btnVoiceInput" onclick="toggleVoiceRecognition()" class="p-2 text-slate-500 hover:text-pink-600 transition shrink-0" title="음성 인식 대화">
+                <i class="fa-solid fa-microphone text-xl"></i>
+            </button>
+
+            <!-- Search Input Box Container -->
+            <div id="inputBoxContainer" onmouseenter="showKeywordsPanel()" class="flex-1 bg-white border border-slate-300 rounded-full px-3 py-1.5 flex items-center shadow-inner space-x-2">
+                <i class="fa-solid fa-magnifying-glass text-slate-400 text-sm"></i>
+                <input type="text" id="userTextInput" oninput="filterComboboxItems()" onfocus="showKeywordsPanel()" placeholder="클릭하거나 글자를 입력해 항목 선택" class="w-full text-xs sm:text-sm bg-transparent focus:outline-none text-slate-800 placeholder:text-slate-400">
+            </div>
+
+            <!-- Send Button -->
+            <button onclick="handleUserSubmit()" class="bg-kakao-yellow hover:bg-yellow-400 text-slate-900 font-bold text-xs sm:text-sm px-4 py-2 rounded-full shadow transition shrink-0 flex items-center space-x-1 border border-yellow-300">
+                <span>전송</span>
+            </button>
+        </div>
+
+    </div>
+
+
+    <!-- Modal 1: Policy Database Modal -->
+    <div id="policyModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-4 shadow-2xl border border-slate-200 max-h-[88vh] flex flex-col">
+            <div class="flex justify-between items-center pb-2 border-b shrink-0">
+                <h3 class="font-bold text-base text-ocean-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-book-open text-ocean-600"></i>
+                    <span>경남 어촌복지 통합 정책 DB</span>
+                </h3>
+                <button onclick="closePolicyModal()" class="text-slate-400 text-2xl font-bold hover:text-slate-600">&times;</button>
+            </div>
+
+            <!-- Policy Category Filter Tabs -->
+            <div class="pt-2 pb-1 shrink-0 flex flex-wrap gap-1">
+                <button onclick="switchPolicyCategory('ALL')" id="polCatALL" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-ocean-600 text-white shadow">전체</button>
+                <button onclick="switchPolicyCategory('WOMEN')" id="polCatWOMEN" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600">여성</button>
+                <button onclick="switchPolicyCategory('PREGNANT')" id="polCatPREGNANT" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600">임산부</button>
+                <button onclick="switchPolicyCategory('SENIOR')" id="polCatSENIOR" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600">고령자</button>
+                <button onclick="switchPolicyCategory('DISABLED')" id="polCatDISABLED" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600">장애인</button>
+                <button onclick="switchPolicyCategory('BENCHMARK')" id="polCatBENCHMARK" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600">농림벤치마킹</button>
+            </div>
+
+            <div class="py-1.5 shrink-0">
+                <input type="text" id="policySearchInput" onkeyup="renderPolicyList()" placeholder="정책명, 키워드 검색 (예: 검진, 쉼드림, 택시)" class="w-full px-3 py-1.5 text-xs bg-slate-50 border rounded-xl focus:outline-none focus:border-ocean-500">
+            </div>
+
+            <div id="policyModalList" class="flex-1 overflow-y-auto space-y-2 pr-1 no-scrollbar pt-1">
+                <!-- Dynamically populated via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Fishery Job Center Modal -->
+    <div id="jobModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-4 shadow-2xl border border-slate-200 max-h-[88vh] flex flex-col">
+            <div class="flex justify-between items-center pb-2 border-b shrink-0">
+                <h3 class="font-bold text-base text-emerald-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-users-gear text-emerald-600"></i>
+                    <span>경남 어촌 일손 든든 매칭 센터</span>
+                </h3>
+                <button onclick="closeJobModal()" class="text-slate-400 text-2xl font-bold hover:text-slate-600">&times;</button>
+            </div>
+
+            <div class="pt-2 pb-1 shrink-0 flex space-x-2">
+                <button onclick="switchJobTab('OFFER')" id="jobTabOffer" class="flex-1 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 text-white shadow">
+                    🙋‍♂️ 어촌 일손 찾아요 (구인)
+                </button>
+                <button onclick="switchJobTab('SEEK')" id="jobTabSeek" class="flex-1 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600">
+                    🌊 어촌 일자리 구해요 (구직)
+                </button>
+            </div>
+
+            <div class="py-1.5 space-y-1.5 shrink-0">
+                <div class="flex items-center justify-between gap-2">
+                    <input type="text" id="jobSearchInput" onkeyup="renderJobList()" placeholder="지역, 업종 검색 (예: 통영 굴, 대체인력)" class="w-full px-3 py-1.5 text-xs bg-slate-50 border rounded-xl focus:outline-none focus:border-emerald-500">
+                    <button onclick="openJobRegisterForm()" class="px-3 py-1.5 bg-emerald-700 text-white rounded-xl text-xs font-bold shrink-0 shadow flex items-center space-x-1">
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        <span>등록하기</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="jobModalList" class="flex-1 overflow-y-auto space-y-2.5 pr-1 no-scrollbar pt-1">
+                <!-- Dynamically populated via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Job Posting Register Form Modal -->
+    <div id="jobRegisterModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-4 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-3 pb-2 border-b">
+                <h3 class="font-bold text-base text-emerald-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-pen-to-square text-emerald-600"></i>
+                    <span>구인 / 구직 등록 신청</span>
+                </h3>
+                <button onclick="closeJobRegisterModal()" class="text-slate-400 text-xl font-bold">&times;</button>
+            </div>
+
+            <form onsubmit="submitJobPosting(event)" class="space-y-3 text-xs sm:text-sm">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">구분 선택</label>
+                    <select id="regJobType" class="w-full p-2 border rounded-xl bg-slate-50 font-bold">
+                        <option value="OFFER" selected>구인 (일손 구함 - 선주/어촌계)</option>
+                        <option value="SEEK">구직 (일자리 찾음 - 구직자/대체인력)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">제목 (예: 통영 미조면 굴 양식장 작업자 2명)</label>
+                    <input type="text" id="regJobTitle" required placeholder="구인/구직 제목 입력" class="w-full p-2 border rounded-xl bg-slate-50">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">지역 (경남 연안)</label>
+                        <select id="regJobRegion" class="w-full p-2 border rounded-xl bg-slate-50">
+                            <option value="통영시">통영시</option>
+                            <option value="거제시">거제시</option>
+                            <option value="남해군" selected>남해군</option>
+                            <option value="창원시">창원시</option>
+                            <option value="사천시">사천시</option>
+                            <option value="고성군">고성군</option>
+                            <option value="하동군">하동군</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">어업 분야</label>
+                        <select id="regJobCategory" class="w-full p-2 border rounded-xl bg-slate-50">
+                            <option value="양식장 작업">양식장 작업</option>
+                            <option value="연근해 조업">연근해 어선 조업</option>
+                            <option value="수산물 가공·포장">수산물 가공·포장</option>
+                            <option value="어업 대체인력(쉼드림)">어업 대체인력(쉼드림)</option>
+                            <option value="어촌계 잡일·망질">어촌계 잡일·망질</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">보수 (일당/월급)</label>
+                        <input type="text" id="regJobPay" required placeholder="예: 일당 15만원" class="w-full p-2 border rounded-xl bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">숙식 및 교통</label>
+                        <input type="text" id="regJobHousing" placeholder="예: 기숙사/식사 제공" class="w-full p-2 border rounded-xl bg-slate-50">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">상세 내용 및 연계 요청</label>
+                    <textarea id="regJobDetail" rows="3" placeholder="예: 부상 어업인 대체인력으로 쉼드림 지원금 적용 희망." class="w-full p-2 border rounded-xl bg-slate-50"></textarea>
+                </div>
+
+                <div class="pt-1 flex space-x-2">
+                    <button type="button" onclick="closeJobRegisterModal()" class="w-1/3 py-2.5 border rounded-xl font-bold">취소</button>
+                    <button type="submit" class="w-2/3 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow">등록하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 4: Customized Eligibility Diagnosis Modal -->
+    <div id="diagnosisModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-4 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-3 pb-2 border-b">
+                <h3 class="font-bold text-base text-rose-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-user-check text-rose-600"></i>
+                    <span>원스톱 어촌복지 자격 진단</span>
+                </h3>
+                <button onclick="closeDiagnosisModal()" class="text-slate-400 text-xl font-bold">&times;</button>
+            </div>
+
+            <form onsubmit="executeDiagnosis(event)" class="space-y-3 text-xs sm:text-sm">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">성별</label>
+                        <select id="diagGender" class="w-full p-2 border rounded-xl bg-slate-50 font-bold">
+                            <option value="FEMALE">여성</option>
+                            <option value="MALE">남성</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">만 연령</label>
+                        <input type="number" id="diagAge" required value="68" placeholder="예: 68" class="w-full p-2 border rounded-xl bg-slate-50 font-bold">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">거주 시·군 (경남 연안)</label>
+                    <select id="diagRegion" class="w-full p-2 border rounded-xl bg-slate-50">
+                        <option value="통영시">통영시</option>
+                        <option value="거제시">거제시</option>
+                        <option value="남해군" selected>남해군</option>
+                        <option value="창원시">창원시</option>
+                        <option value="사천시">사천시</option>
+                        <option value="고성군">고성군</option>
+                        <option value="하동군">하동군</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2 pt-1">
+                    <label class="flex items-center space-x-2 font-medium text-slate-800">
+                        <input type="checkbox" id="diagIsIsland" class="w-4 h-4 rounded text-ocean-600">
+                        <span>도서/낙도/섬 지역 거주</span>
+                    </label>
+                    <label class="flex items-center space-x-2 font-medium text-slate-800">
+                        <input type="checkbox" id="diagIsFisher" checked class="w-4 h-4 rounded text-ocean-600">
+                        <span>어업경영체 등록자 (또는 무급가족)</span>
+                    </label>
+                    <label class="flex items-center space-x-2 font-medium text-slate-800">
+                        <input type="checkbox" id="diagIsPregnant" class="w-4 h-4 rounded text-ocean-600">
+                        <span>임신 중 또는 출산 후 1년 이내</span>
+                    </label>
+                    <label class="flex items-center space-x-2 font-medium text-slate-800">
+                        <input type="checkbox" id="diagIsDisabled" class="w-4 h-4 rounded text-ocean-600">
+                        <span>등록 장애인 또는 만성 관절질환자</span>
+                    </label>
+                </div>
+
+                <div class="pt-2 flex space-x-2">
+                    <button type="button" onclick="closeDiagnosisModal()" class="w-1/3 py-2.5 border rounded-xl font-bold">취소</button>
+                    <button type="submit" class="w-2/3 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow">진단 실행하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 5: OCR Document & Photo Scanner Simulator -->
+    <div id="ocrModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-4 shadow-2xl border border-slate-200 flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center mb-2 pb-2 border-b shrink-0">
+                <h3 class="font-bold text-base text-slate-800 flex items-center space-x-2">
+                    <i class="fa-solid fa-camera text-ocean-600"></i>
+                    <span>서류·부상 사진 촬영 및 OCR 스캔</span>
+                </h3>
+                <button onclick="closeOcrModal()" class="text-slate-400 text-xl font-bold hover:text-slate-600">&times;</button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto space-y-3 no-scrollbar py-1">
+                <p class="text-xs text-slate-600">신분증, 어업경영체 등록증, 병원 진단서, 또는 부상·환부 사진을 직접 촬영하거나 갤러리에서 첨부하세요.</p>
+
+                <!-- Camera Stream & Image Preview Area -->
+                <div class="relative bg-slate-900 rounded-2xl overflow-hidden min-h-[200px] flex items-center justify-center border-2 border-dashed border-slate-300">
+                    <video id="ocrVideo" autoplay playsinline class="w-full h-52 object-cover hidden"></video>
+                    <img id="ocrImagePreview" class="w-full h-52 object-cover hidden" alt="촬영된 서류 이미지">
+                    
+                    <div id="ocrPlaceholder" class="text-center p-4 text-slate-400 space-y-2">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400"></i>
+                        <p class="text-xs font-semibold">카메라를 켜거나 사진 파일을 선택하세요</p>
+                    </div>
+
+                    <div id="ocrScanOverlay" class="absolute inset-0 bg-ocean-500/20 hidden flex-col items-center justify-center">
+                        <div class="w-full h-1 bg-cyan-400 shadow-[0_0_15px_#22d3ee] animate-bounce"></div>
+                        <span class="mt-4 px-3 py-1 bg-black/70 text-cyan-300 text-xs font-bold rounded-full animate-pulse">
+                            <i class="fa-solid fa-spinner animate-spin mr-1"></i> AI 서류·환부 분석 중...
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Camera / Gallery Upload Actions -->
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <button id="btnStartCamera" onclick="startCamera()" class="py-2.5 px-3 bg-ocean-600 hover:bg-ocean-700 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 shadow">
+                        <i class="fa-solid fa-video"></i>
+                        <span>실시간 카메라</span>
+                    </button>
+                    <button onclick="document.getElementById('ocrFileInput').click()" class="py-2.5 px-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 shadow">
+                        <i class="fa-solid fa-images"></i>
+                        <span>갤러리 사진 선택</span>
+                    </button>
+                    <input type="file" id="ocrFileInput" accept="image/*" class="hidden" onchange="handleOcrFileUpload(event)">
+                </div>
+
+                <div id="cameraControls" class="hidden pt-1">
+                    <button onclick="capturePhotoAndAnalyze()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-circle-dot text-rose-400 animate-pulse text-sm"></i>
+                        <span>사진 촬영 및 OCR 분석</span>
+                    </button>
+                </div>
+
+                <!-- Preset Sample Document / Injury Buttons -->
+                <div class="border-t pt-3">
+                    <span class="text-[11px] font-bold text-slate-500 block mb-1.5">또는 샘플 서류/사진으로 바로 체험해보세요:</span>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <button onclick="simulateOcrScan('ID')" class="p-2 bg-slate-100 hover:bg-ocean-50 border rounded-xl text-[11px] font-bold text-slate-700 text-center flex items-center justify-center gap-1">
+                            <span>🪪 주민등록증</span>
+                        </button>
+                        <button onclick="simulateOcrScan('FISHER')" class="p-2 bg-slate-100 hover:bg-ocean-50 border rounded-xl text-[11px] font-bold text-slate-700 text-center flex items-center justify-center gap-1">
+                            <span>📜 어업경영체</span>
+                        </button>
+                        <button onclick="simulateOcrScan('MEDICAL')" class="p-2 bg-slate-100 hover:bg-ocean-50 border rounded-xl text-[11px] font-bold text-slate-700 text-center flex items-center justify-center gap-1">
+                            <span>🏥 의사진단서</span>
+                        </button>
+                        <button onclick="simulateOcrScan('INJURY')" class="p-2 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl text-[11px] font-bold text-rose-700 text-center flex items-center justify-center gap-1">
+                            <span>🩹 기타(부상/환부)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 6: Blind Spot Modal -->
+    <div id="blindSpotModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-slate-200">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-bold text-base text-amber-800 flex items-center space-x-2">
+                    <i class="fa-solid fa-bullhorn text-amber-600"></i>
+                    <span>대리신청 및 사각지대 제안</span>
+                </h3>
+                <button onclick="closeBlindSpotModal()" class="text-slate-400 text-xl font-bold">&times;</button>
+            </div>
+            <form onsubmit="submitBlindSpotDemand(event)" class="space-y-3 text-xs sm:text-sm">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">신청자/대상자 정보</label>
+                    <input type="text" id="blindSpotTarget" placeholder="예: 남해군 미조면 이*순 어업인 (대리인: 이장)" required class="w-full p-2 border rounded-xl bg-slate-50">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">어촌 생활 어려움 / 신규 정책 제안</label>
+                    <textarea id="blindSpotText" rows="3" placeholder="예: 임산부 어업인의 순회 이동 진료선 전용 승선 구역 확대가 필요합니다." required class="w-full p-2 border rounded-xl bg-slate-50"></textarea>
+                </div>
+                <button type="submit" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs shadow">경상남도 수산과로 접수하기</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 7: API Settings Modal -->
+    <div id="apiSettingsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex justify-between items-center pb-2 border-b">
+                <h3 class="font-bold text-base text-slate-800 flex items-center space-x-2">
+                    <i class="fa-solid fa-sliders text-ocean-600"></i>
+                    <span>외부 API 연동 및 설정</span>
+                </h3>
+                <button onclick="closeApiSettingsModal()" class="text-slate-400 text-xl font-bold">&times;</button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Google Gemini API Key (선택)</label>
+                    <input type="password" id="inputGeminiKey" placeholder="Gemini API 키 입력 (자유 대화 처리)" class="w-full p-2 border rounded-xl bg-slate-50">
+                    <p class="text-[10px] text-slate-500 mt-0.5">미입력 시 내장된 경남 어촌복지 룰 엔진으로 동작합니다.</p>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">공공데이터 포털 Open API Key (선택)</label>
+                    <input type="password" id="inputPublicDataKey" placeholder="공공데이터 API 키 입력" class="w-full p-2 border rounded-xl bg-slate-50">
+                </div>
+
+                <div class="pt-1">
+                    <label class="flex items-center space-x-2 text-slate-700 font-semibold">
+                        <input type="checkbox" id="chkAutoTts" class="w-4 h-4 rounded text-ocean-600">
+                        <span>답변 메시지 자동 음성 출력 (TTS)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="pt-2 flex justify-end space-x-2">
+                <button onclick="closeApiSettingsModal()" class="px-3 py-2 border rounded-xl font-bold text-xs">닫기</button>
+                <button onclick="saveApiKeys()" class="px-4 py-2 bg-ocean-600 hover:bg-ocean-700 text-white font-bold rounded-xl text-xs shadow">저장하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Comprehensive Policy Database
+        const GYEONGNAM_POLICIES = [
+            {
+                id: "GN-WEL-WOMEN-01",
+                name: "여성어업인 근골격계 특화검진 지원",
+                category: "여성어업인",
+                tag: "WOMEN",
+                target: ["여성어업인", "만 45세 이상"],
+                benefit: "찾아가는 검진버스를 통한 근골격계·골밀도 검진 및 재활 치료 지원",
+                cost: "본인부담 10% (최대 20만원 지원)",
+                documents: ["신분증", "어업경영체 등록증"],
+                isBenchmark: false,
+                isNew: false
+            },
+            {
+                id: "GN-WEL-WOMEN-02",
+                name: "여성어업인 행복바우처 카드 지원",
+                category: "여성어업인",
+                tag: "WOMEN",
+                target: ["여성어업인", "만 20~75세"],
+                benefit: "문화·건강·복지 활동을 위한 연 20만원 복지카드 지급",
+                cost: "자부담 4만원 (16만원 보조)",
+                documents: ["어업경영체 등록증", "주민등록등본"],
+                isBenchmark: false,
+                isNew: false
+            },
+            {
+                id: "GN-WEL-PREG-01",
+                name: "임산부 어업인 출산·영어 도우미 지원",
+                category: "임산부",
+                tag: "PREGNANT",
+                target: ["임산부어업인", "출산 어업인"],
+                benefit: "(농업 벤치마킹) 출산 전후 대체 어업인 인력 임금 90% 지원 (최대 90일)",
+                cost: "자부담 10%",
+                documents: ["임신확인서/의사진단서", "어업경영체 등록증"],
+                isBenchmark: true,
+                isNew: false
+            },
+            {
+                id: "GN-WEL-PREG-02",
+                name: "어촌 임산부 친환경 수산·농산물 바우처",
+                category: "임산부",
+                tag: "PREGNANT",
+                target: ["임산부", "영유아 모"],
+                benefit: "(농림부 벤치마킹) 연 48만 원 상당의 친환경 농수산물 배송 지원",
+                cost: "자부담 20%",
+                documents: ["산모수첩 또는 임신확인서"],
+                isBenchmark: true,
+                isNew: true
+            },
+            {
+                id: "GN-WEL-SENIOR-01",
+                name: "도서·낙도 이동형 어복(漁福) 순회 진료버스",
+                category: "고령자",
+                tag: "SENIOR",
+                target: ["고령어업인", "도서주민"],
+                benefit: "섬·낙도 어촌계 순회 한방·내과 진료, 약제 지급 및 원스톱 행정대행",
+                cost: "전액 무료",
+                documents: ["신분증"],
+                isBenchmark: false,
+                isNew: false
+            },
+            {
+                id: "GN-WEL-SENIOR-02",
+                name: "고령 어업인 어업권 은퇴·이양 직불금",
+                category: "고령자",
+                tag: "SENIOR",
+                target: ["만 65세~74세 어업인"],
+                benefit: "어업경영권을 청년 어업인에게 이양 시 매월 일정 직불 수당 지급",
+                cost: "전액 정부 지원",
+                documents: ["어업경영체 등록증", "이양 계약서"],
+                isBenchmark: false,
+                isNew: false
+            },
+            {
+                id: "GN-WEL-SENIOR-03",
+                name: "어촌 행복 나눔택시 (1,000원 병원 택시)",
+                category: "고령자",
+                tag: "SENIOR",
+                target: ["만 70세 이상 고령주민"],
+                benefit: "도심 의원·보건소 방문 이동 전용 택시 바우처 지급 (1회 1,000원)",
+                cost: "1회 1,000원",
+                documents: ["신분증"],
+                isBenchmark: false,
+                isNew: false
+            },
+            {
+                id: "GN-WEL-DISABLE-01",
+                name: "장애 어업인 친화형 조업 보조기기 지원",
+                category: "장애인",
+                tag: "DISABLED",
+                target: ["장애인 어업인", "중증관절 질환자"],
+                benefit: "양망기, 승선 리프트, 보조 전동 작업의자 구입비 80% 지원",
+                cost: "자부담 20%",
+                documents: ["장애인 등록증", "어업경영체 등록증"],
+                isBenchmark: false,
+                isNew: true
+            },
+            {
+                id: "GN-WEL-DISABLE-02",
+                name: "어촌 장애인·고령가구 산림·해양 치유 바우처",
+                category: "장애인",
+                tag: "DISABLED",
+                target: ["장애 어업인", "취약계층"],
+                benefit: "(산림청 벤치마킹) 국립 산림치유원 및 해양치유센터 무료 이용권",
+                cost: "전액 무료",
+                documents: ["복지카드 또는 장애인증명서"],
+                isBenchmark: true,
+                isNew: false
+            },
+            {
+                id: "GN-WEL-MISC-01",
+                name: "어업인 든든 대체인력 쉼드림 수당",
+                category: "일반어업인",
+                tag: "ALL",
+                target: ["질병 어업인", "사고 어업인"],
+                benefit: "부상·수술 시 대체인력 채용 임금 80% 지원 (1일 최대 10만원)",
+                cost: "자부담 20%",
+                documents: ["의사 진단서", "어업경영체 등록증"],
+                isBenchmark: false,
+                isNew: false
+            }
+        ];
+
+        // Fishery Jobs Database
+        const GYEONGNAM_JOBS = [
+            {
+                id: "JOB-OFFER-01",
+                type: "OFFER",
+                title: "통영 미조항 굴 양식장 작업자 모집",
+                region: "통영시",
+                category: "양식장 작업",
+                pay: "일당 15만원 ~ 18만원",
+                housing: "중식 제공, 셔틀버스 운행",
+                contact: "055-640-**** (미조어촌계)",
+                benefits: ["여성어업인 근골격계 보조장비 제공", "어비니 일손 바우처 가능"],
+                date: "2026-08-01"
+            },
+            {
+                id: "JOB-OFFER-02",
+                type: "OFFER",
+                title: "남해 창선 연근해 어선 대체인력 (부상 대체)",
+                region: "남해군",
+                category: "어업 대체인력(쉼드림)",
+                pay: "일당 16만원 (정부 80% 지원 연계)",
+                housing: "숙식 전액 제공",
+                contact: "055-860-**** (남해 수협)",
+                benefits: ["어업인 든든 쉼드림 수당 연계대상", "작업안전보험 가입"],
+                date: "2026-07-30"
+            },
+            {
+                id: "JOB-OFFER-03",
+                type: "OFFER",
+                title: "거제 해금강 멍게 양식장 조업 어부 급구",
+                region: "거제시",
+                category: "연근해 조업",
+                pay: "월급 380만원 (경력 우대)",
+                housing: "원룸 기숙사 무료 제공",
+                contact: "055-639-**** (해금강 어촌계)",
+                benefits: ["계절근로자 숙소 지원", "상해보험 전액 지원"],
+                date: "2026-07-28"
+            },
+            {
+                id: "JOB-SEEK-01",
+                type: "SEEK",
+                title: "귀어 희망자 (어선 조업 및 수산가공 2년 경력)",
+                region: "사천시 / 고성군",
+                category: "연근해 조업",
+                pay: "일당 14만원 이상 희망",
+                housing: "숙소 제공 희망",
+                contact: "010-3812-****",
+                benefits: ["귀어귀촌 정착지원금 대상자", "어업경영체 등록 예정"],
+                date: "2026-07-31"
+            }
+        ];
+
+        let apiKeys = {
+            gemini: localStorage.getItem("gemini_api_key") || "",
+            publicData: localStorage.getItem("public_data_key") || ""
+        };
+
+        let currentPolicyCategory = 'ALL';
+        let currentJobTab = 'OFFER';
+        let speechRecognition = null;
+        let isVoiceRecognizing = false;
+
+        function renderComboboxItems(filterText = "") {
+            const container = document.getElementById("comboboxItemList");
+            if (!container) return;
+            container.innerHTML = "";
+
+            const q = filterText.trim().toLowerCase();
+
+            const filteredPolicies = GYEONGNAM_POLICIES.filter(p => 
+                !q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || p.benefit.toLowerCase().includes(q)
+            );
+
+            const filteredJobs = GYEONGNAM_JOBS.filter(j => 
+                !q || j.title.toLowerCase().includes(q) || j.category.toLowerCase().includes(q) || j.region.toLowerCase().includes(q)
+            );
+
+            if (filteredPolicies.length === 0 && filteredJobs.length === 0) {
+                container.innerHTML = `<div class="p-4 text-center text-xs text-slate-400 font-semibold">일치하는 정책 및 일자리 항목이 없습니다.</div>`;
+                return;
+            }
+
+            filteredPolicies.forEach(p => {
+                let iconClass = "fa-hand-holding-heart text-ocean-600";
+                if (p.tag === 'WOMEN') iconClass = "fa-person-dress text-rose-500";
+                else if (p.tag === 'PREGNANT') iconClass = "fa-baby text-pink-500";
+                else if (p.tag === 'SENIOR') iconClass = "fa-user-nurse text-amber-500";
+                else if (p.tag === 'DISABLED') iconClass = "fa-wheelchair text-purple-500";
+
+                const div = document.createElement("div");
+                div.className = "select-item-card flex items-start space-x-2.5 hover:bg-slate-50";
+                div.onclick = () => selectItemFromCombobox(p.name);
+                div.innerHTML = `
+                    <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 mt-0.5">
+                        <i class="fa-solid ${iconClass} text-sm"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-slate-900 text-xs sm:text-sm truncate leading-tight">
+                            ${escapeHtml(p.name)} <span class="text-slate-500 font-normal">〔${p.category}${p.isBenchmark ? '·벤치마킹' : ''}〕</span>
+                        </div>
+                        <div class="text-[11px] text-slate-500 mt-0.5 truncate">
+                            ${p.target.join(' · ')} · ${p.benefit}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            filteredJobs.forEach(j => {
+                const div = document.createElement("div");
+                div.className = "select-item-card flex items-start space-x-2.5 hover:bg-emerald-50/50";
+                div.onclick = () => selectItemFromCombobox(j.title);
+                div.innerHTML = `
+                    <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                        <i class="fa-solid fa-briefcase text-xs"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-slate-900 text-xs sm:text-sm truncate leading-tight">
+                            ${escapeHtml(j.title)} <span class="text-emerald-700 font-normal">〔${j.type === 'OFFER' ? '수산구인' : '수산구직'}〕</span>
+                        </div>
+                        <div class="text-[11px] text-slate-500 mt-0.5 truncate">
+                            ${j.region} · ${j.category} · ${j.pay}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function showKeywordsPanel() {
+            renderComboboxItems(document.getElementById("userTextInput").value);
+            document.getElementById("autoKeywordsPanel").classList.remove("hidden");
+        }
+
+        function hideKeywordsPanel() {
+            document.getElementById("autoKeywordsPanel").classList.add("hidden");
+        }
+
+        function filterComboboxItems() {
+            const query = document.getElementById("userTextInput").value;
+            renderComboboxItems(query);
+            document.getElementById("autoKeywordsPanel").classList.remove("hidden");
+        }
+
+        function selectItemFromCombobox(title) {
+            document.getElementById("userTextInput").value = title;
+            hideKeywordsPanel();
+            handleUserSubmit();
+        }
+
+        document.addEventListener("click", function(e) {
+            const panel = document.getElementById("autoKeywordsPanel");
+            const inputContainer = document.getElementById("inputBoxContainer");
+            if (panel && inputContainer && !panel.contains(e.target) && !inputContainer.contains(e.target)) {
+                hideKeywordsPanel();
+            }
+        });
+
+        function toggleVoiceRecognition() {
+            const btn = document.getElementById("btnVoiceInput");
+            const inputEl = document.getElementById("userTextInput");
+            
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) {
+                renderUserMessage("🎤 [음성 입력 실행]");
+                renderBotMessage("현재 브라우저 환경에서 마이크 음성 인식이 직접 지원되지 않아 안내 메시지를 출력합니다.\n질문(예: **'여성어업인 검진'**, **'통영 굴 구인'**)을 입력창에 직접 입력해 보세요!");
+                return;
+            }
+
+            if (isVoiceRecognizing && speechRecognition) {
+                speechRecognition.stop();
+                return;
+            }
+
+            try {
+                speechRecognition = new SpeechRecognition();
+                speechRecognition.lang = 'ko-KR';
+                speechRecognition.continuous = false;
+                speechRecognition.interimResults = true;
+
+                speechRecognition.onstart = function() {
+                    isVoiceRecognizing = true;
+                    if (btn) btn.classList.add("text-rose-600", "animate-pulse");
+                    if (inputEl) inputEl.placeholder = "음성을 듣고 있습니다... 말씀해 주세요!";
+                };
+
+                speechRecognition.onresult = function(event) {
+                    let transcript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        transcript += event.results[i][0].transcript;
+                    }
+                    if (inputEl) inputEl.value = transcript;
+                };
+
+                speechRecognition.onerror = function(event) {
+                    console.warn("Speech recognition error:", event.error);
+                    stopVoiceRecognitionUI();
+                };
+
+                speechRecognition.onend = function() {
+                    stopVoiceRecognitionUI();
+                    if (inputEl && inputEl.value.trim()) {
+                        handleUserSubmit();
+                    }
+                };
+
+                speechRecognition.start();
+            } catch (err) {
+                console.error("Speech recognition start failed:", err);
+                stopVoiceRecognitionUI();
+            }
+        }
+
+        function stopVoiceRecognitionUI() {
+            isVoiceRecognizing = false;
+            const btn = document.getElementById("btnVoiceInput");
+            const inputEl = document.getElementById("userTextInput");
+            if (btn) btn.classList.remove("text-rose-600", "animate-pulse");
+            if (inputEl) inputEl.placeholder = "클릭하거나 글자를 입력해 항목 선택";
+        }
+
+        function speakText(text) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ko-KR';
+            utterance.rate = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function openOcrModal() {
+            resetOcrUI();
+            document.getElementById("ocrModal").classList.remove("hidden");
+        }
+
+        function closeOcrModal() {
+            stopCamera();
+            document.getElementById("ocrModal").classList.add("hidden");
+        }
+
+        async function startCamera() {
+            const video = document.getElementById("ocrVideo");
+            const placeholder = document.getElementById("ocrPlaceholder");
+            const preview = document.getElementById("ocrImagePreview");
+            const controls = document.getElementById("cameraControls");
+
+            preview.classList.add("hidden");
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: { ideal: "environment" } } 
+                });
+                video.srcObject = stream;
+                video.classList.remove("hidden");
+                placeholder.classList.add("hidden");
+                if (controls) controls.classList.remove("hidden");
+            } catch (err) {
+                console.warn("Camera access failed:", err);
+                video.classList.add("hidden");
+                placeholder.classList.remove("hidden");
+                placeholder.innerHTML = `
+                    <i class="fa-solid fa-triangle-exclamation text-amber-500 text-3xl mb-1"></i>
+                    <p class="text-xs font-semibold text-amber-700">웹카메라를 직접 연결할 수 없습니다.</p>
+                    <p class="text-[10px] text-slate-500">아래 '갤러리 사진 선택' 또는 샘플 버튼을 눌러 서류/부상 사진을 선택해 보세요.</p>
+                `;
+            }
+        }
+
+        function stopCamera() {
+            const video = document.getElementById("ocrVideo");
+            if (video && video.srcObject) {
+                const stream = video.srcObject;
+                const tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+                video.srcObject = null;
+            }
+            if (video) video.classList.add("hidden");
+            const controls = document.getElementById("cameraControls");
+            if (controls) controls.classList.add("hidden");
+        }
+
+        function handleOcrFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            stopCamera();
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const preview = document.getElementById("ocrImagePreview");
+                const placeholder = document.getElementById("ocrPlaceholder");
+                preview.src = evt.target.result;
+                preview.classList.remove("hidden");
+                placeholder.classList.add("hidden");
+
+                runOcrAnalysis("선택한 사진 파일");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function capturePhotoAndAnalyze() {
+            const video = document.getElementById("ocrVideo");
+            const preview = document.getElementById("ocrImagePreview");
+            
+            if (!video || video.classList.contains("hidden")) return;
+
+            const canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            preview.src = canvas.toDataURL("image/jpeg");
+            preview.classList.remove("hidden");
+            video.classList.add("hidden");
+            stopCamera();
+
+            runOcrAnalysis("촬영한 사진");
+        }
+
+        function runOcrAnalysis(sourceName) {
+            const overlay = document.getElementById("ocrScanOverlay");
+            overlay.classList.remove("hidden");
+
+            setTimeout(() => {
+                overlay.classList.add("hidden");
+                closeOcrModal();
+                renderUserMessage(`📷 [${sourceName} 스캔 및 전송 완료]`);
+                renderBotMessage(`AI 분석 완료: **${sourceName}** 정보가 수신되었습니다.\n인적사항 및 부상 상태 분석 데이터가 **시·군 보건소, 순회진료선 및 쉼드림 대체인력 지원금 전담 접수처**로 전달되었습니다.`);
+            }, 1800);
+        }
+
+        function resetOcrUI() {
+            document.getElementById("ocrImagePreview").classList.add("hidden");
+            document.getElementById("ocrVideo").classList.add("hidden");
+            document.getElementById("ocrPlaceholder").classList.remove("hidden");
+            document.getElementById("ocrScanOverlay").classList.add("hidden");
+            document.getElementById("cameraControls").classList.add("hidden");
+        }
+
+        function simulateOcrScan(type) {
+            closeOcrModal();
+            let docName = "주민등록증";
+            if (type === 'FISHER') docName = "어업경영체 등록 확인서";
+            if (type === 'MEDICAL') docName = "의사 진단서 및 소견서";
+            if (type === 'INJURY') docName = "부상·환부 및 현장 사진";
+
+            renderUserMessage(`📷 [${docName} 선택/스캔 완료]`);
+            
+            if (type === 'INJURY') {
+                renderBotMessage(`AI 사진 분석 완료: **${docName}**이(가) 등록되었습니다.\n환부 사진이 **시·군 보건소, 순회 진료선 및 어업인 든든 쉼드림(대체인력 수당)** 담당자에게 전달되었습니다.`, GYEONGNAM_POLICIES.find(p => p.id === "GN-WEL-MISC-01"));
+            } else {
+                renderBotMessage(`AI OCR 서류 인식 완료: **${docName}**이(가) 확인되었습니다.\n성명, 주민번호, 어업 유형이 확인되어 모의 신청서에 반영되었습니다.`);
+            }
+        }
+
+        function renderUserMessage(text) {
+            const chatHistory = document.getElementById("chatHistory");
+            const div = document.createElement("div");
+            div.className = "flex items-end justify-end space-x-2";
+            div.innerHTML = `
+                <div class="chat-bubble chat-bubble-user bg-kakao-yellow text-slate-900 p-3 rounded-2xl rounded-tr-none text-xs sm:text-sm font-semibold max-w-[80%] shadow-sm">
+                    ${escapeHtml(text)}
+                </div>
+            `;
+            chatHistory.appendChild(div);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        function renderBotLoading() {
+            const chatHistory = document.getElementById("chatHistory");
+            const id = "loading-" + Date.now();
+            const div = document.createElement("div");
+            div.id = id;
+            div.className = "flex items-start space-x-2.5";
+            div.innerHTML = `
+                <div class="w-9 h-9 rounded-xl bg-kakao-yellow text-slate-900 flex items-center justify-center font-bold text-base shrink-0 border border-yellow-300">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-xs text-slate-500 flex items-center space-x-2">
+                    <i class="fa-solid fa-circle-notch animate-spin text-ocean-600"></i>
+                    <span>경남 복지 DB 탐색 중...</span>
+                </div>
+            `;
+            chatHistory.appendChild(div);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            return id;
+        }
+
+        function removeBotLoading(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        function renderBotMessage(text, policies = [], jobs = []) {
+            const chatHistory = document.getElementById("chatHistory");
+            const div = document.createElement("div");
+            div.className = "flex items-start space-x-2.5";
+
+            const policyList = Array.isArray(policies) ? policies : (policies ? [policies] : []);
+            const jobList = Array.isArray(jobs) ? jobs : (jobs ? [jobs] : []);
+
+            let policiesHtml = "";
+            if (policyList.length > 0) {
+                policiesHtml = policyList.map(policy => `
+                    <div class="mt-2 p-2.5 bg-sky-50 rounded-xl border border-sky-200 text-xs space-y-1.5">
+                        <div class="font-bold text-ocean-900 text-sm flex items-center justify-between">
+                            <span>📋 ${policy.name}</span>
+                            ${policy.isBenchmark ? '<span class="text-[9px] bg-emerald-100 text-emerald-800 px-1 py-0.5 rounded font-bold">농림 벤치마킹</span>' : ''}
+                        </div>
+                        <div class="text-slate-700"><strong>혜택:</strong> ${policy.benefit}</div>
+                        <div class="text-slate-700"><strong>본인부담금:</strong> ${policy.cost}</div>
+                        <div class="pt-1 flex gap-1 justify-end">
+                            <button onclick="selectPolicyForDiagnosis('${policy.id}')" class="px-2.5 py-1 bg-ocean-600 hover:bg-ocean-700 text-white rounded-lg text-[11px] font-bold shadow">
+                                ✨ 맞춤 진단하기
+                            </button>
+                            <button onclick="openOcrModal()" class="px-2 py-1 bg-slate-700 text-white rounded-lg text-[11px] font-bold">📷 사진/서류 스캔</button>
+                        </div>
+                    </div>
+                `).join("");
+            }
+
+            let jobsHtml = "";
+            if (jobList.length > 0) {
+                jobsHtml = jobList.map(job => `
+                    <div class="mt-2 p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-xs space-y-1.5">
+                        <div class="font-bold text-emerald-900 text-sm flex items-center justify-between">
+                            <span>👷 ${job.title}</span>
+                            <span class="text-[9px] bg-emerald-200 text-emerald-900 px-1.5 py-0.5 rounded font-bold">${job.type === 'OFFER' ? '구인 (일손구함)' : '구직 (일자리찾음)'}</span>
+                        </div>
+                        <div class="text-slate-700"><strong>지역/분야:</strong> ${job.region} | ${job.category}</div>
+                        <div class="text-slate-700"><strong>보수/숙식:</strong> ${job.pay} (${job.housing})</div>
+                        <div class="text-emerald-800 font-semibold text-[11px]"><strong>연계 지원:</strong> ${job.benefits.join(", ")}</div>
+                        <div class="pt-1 flex gap-1 justify-end">
+                            <button onclick="applyForJob('${job.id}')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-bold shadow">
+                                📞 연결 및 신청하기
+                            </button>
+                        </div>
+                    </div>
+                `).join("");
+            }
+
+            div.innerHTML = `
+                <div class="w-9 h-9 rounded-xl bg-kakao-yellow text-slate-900 flex items-center justify-center font-bold text-base shrink-0 shadow-sm border border-yellow-300">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="space-y-1 max-w-[85%]">
+                    <span class="text-xs text-slate-600 font-semibold pl-1">경남복지 도우미</span>
+                    <div class="chat-bubble chat-bubble-bot bg-white text-slate-800 p-3.5 rounded-2xl rounded-tl-none shadow-sm text-xs sm:text-sm leading-relaxed">
+                        <div>${formatMarkdown(text)}</div>
+                        ${jobsHtml}
+                        ${policiesHtml}
+                    </div>
+                </div>
+            `;
+            chatHistory.appendChild(div);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            if (document.getElementById("chkAutoTts").checked) {
+                speakText(text.replace(/[*#]/g, ''));
+            }
+        }
+
+        function processLocalRuleEngine(query) {
+            const q = query.trim().toLowerCase();
+
+            const matchedPolicies = GYEONGNAM_POLICIES.filter(p => {
+                return p.name.toLowerCase().includes(q) ||
+                       p.category.toLowerCase().includes(q) ||
+                       p.tag.toLowerCase().includes(q) ||
+                       p.benefit.toLowerCase().includes(q) ||
+                       p.target.some(t => t.toLowerCase().includes(q));
+            });
+
+            const matchedJobs = GYEONGNAM_JOBS.filter(j => {
+                return j.title.toLowerCase().includes(q) ||
+                       j.category.toLowerCase().includes(q) ||
+                       j.region.toLowerCase().includes(q) ||
+                       j.benefits.some(b => b.toLowerCase().includes(q));
+            });
+
+            const isJobQuery = q.includes("일자리") || q.includes("일손") || q.includes("구인") || q.includes("구직") || q.includes("일") || q.includes("채용");
+            const isWomenQuery = q.includes("여성") || q.includes("검진") || q.includes("근골격") || q.includes("행복바우처");
+            const isSeniorQuery = q.includes("고령") || q.includes("노인") || q.includes("택시") || q.includes("순회");
+            const isPregQuery = q.includes("임신") || q.includes("임산부") || q.includes("출산") || q.includes("도우미");
+            const isDisableQuery = q.includes("장애") || q.includes("보조기기") || q.includes("리프트");
+
+            let returnJobs = [...matchedJobs];
+            let returnPolicies = [...matchedPolicies];
+
+            if (isJobQuery && returnJobs.length === 0) returnJobs = GYEONGNAM_JOBS;
+            if (isWomenQuery && !returnPolicies.some(p => p.tag === 'WOMEN')) returnPolicies.push(...GYEONGNAM_POLICIES.filter(p => p.tag === 'WOMEN'));
+            if (isSeniorQuery && !returnPolicies.some(p => p.tag === 'SENIOR')) returnPolicies.push(...GYEONGNAM_POLICIES.filter(p => p.tag === 'SENIOR'));
+            if (isPregQuery && !returnPolicies.some(p => p.tag === 'PREGNANT')) returnPolicies.push(...GYEONGNAM_POLICIES.filter(p => p.tag === 'PREGNANT'));
+            if (isDisableQuery && !returnPolicies.some(p => p.tag === 'DISABLED')) returnPolicies.push(...GYEONGNAM_POLICIES.filter(p => p.tag === 'DISABLED'));
+
+            const hasResults = returnPolicies.length > 0 || returnJobs.length > 0;
+
+            let responseText = "";
+            if (hasResults) {
+                responseText = `선택/검색하신 **'${escapeHtml(query)}'** 항목과 연동된 경상남도 어촌복지 정책 및 수산 일자리 검색 결과입니다.`;
+            } else {
+                responseText = `요청하신 **'${escapeHtml(query)}'** 관련 항목을 탐색했습니다. 하단의 [통합정책] 또는 [구인구직] 메뉴에서 전체 항목을 확인하실 수 있습니다.`;
+                returnPolicies = [GYEONGNAM_POLICIES[0]];
+            }
+
+            return {
+                text: responseText,
+                policies: returnPolicies,
+                jobs: returnJobs
+            };
+        }
+
+        async function queryGeminiFlash(promptText) {
+            if (!apiKeys.gemini) return null;
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKeys.gemini}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: `당신은 경상남도 어촌복지 및 일손 매칭 AI 도우미입니다. 어업인, 여성, 고령자, 임산부, 장애인 정책에 대해 친절하게 설명하세요.\n질문: ${promptText}` }]
+                        }]
+                    })
+                });
+                const data = await res.json();
+                return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+            } catch (err) {
+                console.error("Gemini API Error:", err);
+                return null;
+            }
+        }
+
+        async function handleUserSubmit() {
+            const inputEl = document.getElementById("userTextInput");
+            const query = inputEl.value.trim();
+            if (!query) return;
+
+            hideKeywordsPanel();
+            renderUserMessage(query);
+            inputEl.value = "";
+
+            const loadingId = renderBotLoading();
+
+            let botResponseText = "";
+            let matchedPolicies = [];
+            let matchedJobs = [];
+
+            if (apiKeys.gemini) {
+                botResponseText = await queryGeminiFlash(query);
+            }
+
+            if (!botResponseText) {
+                const localRes = processLocalRuleEngine(query);
+                botResponseText = localRes.text;
+                matchedPolicies = localRes.policies;
+                matchedJobs = localRes.jobs;
+            }
+
+            removeBotLoading(loadingId);
+            renderBotMessage(botResponseText, matchedPolicies, matchedJobs);
+        }
+
+        function openPolicyModal(category = 'ALL') {
+            document.getElementById("policyModal").classList.remove("hidden");
+            switchPolicyCategory(category);
+        }
+        function closePolicyModal() { document.getElementById("policyModal").classList.add("hidden"); }
+
+        function switchPolicyCategory(cat) {
+            currentPolicyCategory = cat;
+            ['ALL', 'WOMEN', 'PREGNANT', 'SENIOR', 'DISABLED', 'BENCHMARK'].forEach(c => {
+                const btn = document.getElementById(`polCat${c}`);
+                if (btn) {
+                    btn.className = (c === cat) ? 
+                        "px-2.5 py-1 text-xs font-bold rounded-lg bg-ocean-600 text-white shadow" : 
+                        "px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600";
+                }
+            });
+            renderPolicyList();
+        }
+
+        function renderPolicyList() {
+            const kw = document.getElementById("policySearchInput").value.trim().toLowerCase();
+            const listEl = document.getElementById("policyModalList");
+            listEl.innerHTML = "";
+
+            const filtered = GYEONGNAM_POLICIES.filter(p => {
+                const matchesCat = (currentPolicyCategory === 'ALL') || 
+                                   (currentPolicyCategory === 'BENCHMARK' && p.isBenchmark) ||
+                                   (p.tag === currentPolicyCategory);
+                const matchesKw = !kw || p.name.toLowerCase().includes(kw) || p.benefit.toLowerCase().includes(kw);
+                return matchesCat && matchesKw;
+            });
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `<div class="text-center py-6 text-xs text-slate-400">조건에 일치하는 정책이 없습니다.</div>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                const card = document.createElement("div");
+                card.className = "p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-1 hover:border-ocean-400 transition";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-slate-900 text-xs sm:text-sm">${p.name}</span>
+                        ${p.isBenchmark ? '<span class="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold">농림 벤치마킹</span>' : ''}
+                    </div>
+                    <div class="text-xs text-slate-700"><strong>혜택:</strong> ${p.benefit}</div>
+                    <div class="text-xs text-slate-600"><strong>자부담:</strong> ${p.cost}</div>
+                    <div class="pt-1 flex justify-end gap-1">
+                        <button onclick="selectPolicyForDiagnosis('${p.id}')" class="px-2.5 py-1 bg-ocean-600 hover:bg-ocean-700 text-white rounded-lg text-xs font-bold shadow">
+                            맞춤 진단하기
+                        </button>
+                    </div>
+                `;
+                listEl.appendChild(card);
+            });
+        }
+
+        function openJobModal() {
+            document.getElementById("jobModal").classList.remove("hidden");
+            renderJobList();
+        }
+        function closeJobModal() { document.getElementById("jobModal").classList.add("hidden"); }
+
+        function switchJobTab(tab) {
+            currentJobTab = tab;
+            document.getElementById("jobTabOffer").className = (tab === 'OFFER') ? 
+                "flex-1 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 text-white shadow" : 
+                "flex-1 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600";
+            document.getElementById("jobTabSeek").className = (tab === 'SEEK') ? 
+                "flex-1 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 text-white shadow" : 
+                "flex-1 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600";
+            renderJobList();
+        }
+
+        function renderJobList() {
+            const kw = document.getElementById("jobSearchInput").value.trim().toLowerCase();
+            const listEl = document.getElementById("jobModalList");
+            listEl.innerHTML = "";
+
+            const filtered = GYEONGNAM_JOBS.filter(j => {
+                const matchesTab = (j.type === currentJobTab);
+                const matchesKw = !kw || j.title.toLowerCase().includes(kw) || j.region.toLowerCase().includes(kw) || j.category.toLowerCase().includes(kw);
+                return matchesTab && matchesKw;
+            });
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `<div class="text-center py-8 text-xs text-slate-400">등록된 구인/구직 항목이 없습니다.</div>`;
+                return;
+            }
+
+            filtered.forEach(j => {
+                const card = document.createElement("div");
+                card.className = "p-3 bg-emerald-50/60 border border-emerald-200 rounded-2xl space-y-1.5 hover:border-emerald-400 transition";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-slate-900 text-xs sm:text-sm">${j.title}</span>
+                        <span class="text-[10px] bg-emerald-200 text-emerald-900 font-bold px-1.5 py-0.5 rounded">${j.region}</span>
+                    </div>
+                    <div class="text-xs text-slate-700"><strong>분야:</strong> ${j.category} | <strong>보수:</strong> ${j.pay}</div>
+                    <div class="text-xs text-slate-600"><strong>숙식:</strong> ${j.housing}</div>
+                    <div class="text-[11px] text-emerald-800 font-medium"><strong>연계 지원:</strong> ${j.benefits.join(", ")}</div>
+                    <div class="pt-1 flex justify-end gap-1.5">
+                        <button onclick="applyForJob('${j.id}')" class="px-3 py-1 bg-emerald-600 text-white font-bold rounded-lg text-xs shadow">
+                            신청/연결 요청 <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </button>
+                    </div>
+                `;
+                listEl.appendChild(card);
+            });
+        }
+
+        function openJobRegisterForm() {
+            closeJobModal();
+            document.getElementById("jobRegisterModal").classList.remove("hidden");
+        }
+        function closeJobRegisterModal() { document.getElementById("jobRegisterModal").classList.add("hidden"); }
+
+        function submitJobPosting(e) {
+            e.preventDefault();
+            closeJobRegisterModal();
+
+            const type = document.getElementById("regJobType").value;
+            const title = document.getElementById("regJobTitle").value;
+            const region = document.getElementById("regJobRegion").value;
+            const category = document.getElementById("regJobCategory").value;
+            const pay = document.getElementById("regJobPay").value;
+            const housing = document.getElementById("regJobHousing").value;
+
+            const newJob = {
+                id: "JOB-NEW-" + Date.now(),
+                type: type,
+                title: title,
+                region: region,
+                category: category,
+                pay: pay,
+                housing: housing || "협의",
+                contact: "접수 완료 (경남 수산센터 연결)",
+                benefits: ["대체인력 쉼드림 사업 연계", "수산 안전보험 적용"],
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            GYEONGNAM_JOBS.unshift(newJob);
+
+            renderUserMessage(`[${type === 'OFFER' ? '구인' : '구직'} 등록] ${title} (${region})`);
+            renderBotMessage(`신청하신 구인/구직 등록 건이 **경남 어촌 일손 든든 매칭 센터**에 정식 접수되었습니다.\n어업 대체인력 쉼드림 수당 지원 요건을 함께 자동 확인 중입니다.`, null, newJob);
+        }
+
+        function applyForJob(jobId) {
+            closeJobModal();
+            const job = GYEONGNAM_JOBS.find(j => j.id === jobId);
+            if (!job) return;
+
+            renderUserMessage(`[일손 매칭 연결] '${job.title}' (${job.region}) 상담 요청`);
+            renderBotMessage(`'${job.title}' 건에 대한 매칭 신청이 수협 및 시·군 수산과 담당자에게 전송되었습니다.\n**연계 복지**: 어업 대체인력 지원금 및 어업 안전보험 혜택을 통합 안내해 드립니다.`, GYEONGNAM_POLICIES.find(p => p.id === "GN-WEL-MISC-01"), job);
+        }
+
+        function startEligibilityDiagnosis() {
+            document.getElementById("diagnosisModal").classList.remove("hidden");
+        }
+        function closeDiagnosisModal() { document.getElementById("diagnosisModal").classList.add("hidden"); }
+
+        function executeDiagnosis(e) {
+            e.preventDefault();
+            closeDiagnosisModal();
+
+            const gender = document.getElementById("diagGender").value;
+            const age = parseInt(document.getElementById("diagAge").value) || 0;
+            const region = document.getElementById("diagRegion").value;
+            const isIsland = document.getElementById("diagIsIsland").checked;
+            const isFisher = document.getElementById("diagIsFisher").checked;
+            const isPregnant = document.getElementById("diagIsPregnant").checked;
+            const isDisabled = document.getElementById("diagIsDisabled").checked;
+
+            const genderText = gender === 'FEMALE' ? '여성' : '남성';
+            const tags = [];
+            if (isIsland) tags.push("도서·낙도 거주");
+            if (isFisher) tags.push("어업경영체 등록");
+            if (isPregnant) tags.push("임신·출산");
+            if (isDisabled) tags.push("장애/관절질환");
+
+            let summaryText = `[원스톱 맞춤진단 실행] ${region} / 만 ${age}세 / ${genderText}`;
+            if (tags.length > 0) summaryText += ` (${tags.join(", ")})`;
+
+            renderUserMessage(summaryText);
+
+            const eligiblePolicies = GYEONGNAM_POLICIES.filter(p => {
+                let match = false;
+                if (p.tag === 'WOMEN' && gender === 'FEMALE') match = true;
+                if (p.tag === 'SENIOR' && age >= 60) match = true;
+                if (p.tag === 'PREGNANT' && isPregnant) match = true;
+                if (p.tag === 'DISABLED' && isDisabled) match = true;
+                if (p.tag === 'ALL') match = true;
+                if (isIsland && (p.id === 'GN-WEL-SENIOR-01' || p.id === 'GN-WEL-SENIOR-03')) match = true;
+                return match;
+            });
+
+            const matchingJobs = GYEONGNAM_JOBS.filter(j => j.region.includes(region) || region.includes(j.region));
+
+            const resultText = `🎯 <strong>${region} 만 ${age}세 ${genderText} 어업인</strong> 지원 자격 진단 결과입니다.<br>` +
+                `선택하신 조건에 해당되는 <strong>복지 정책 ${eligiblePolicies.length}건</strong>과 <strong>맞춤 수산 일자리 ${matchingJobs.length}건</strong>이 매칭되었습니다. 아래 상세 내역 및 혜택을 확인하세요.`;
+
+            renderBotMessage(resultText, eligiblePolicies, matchingJobs);
+        }
+
+        function selectPolicyForDiagnosis(policyId) {
+            closePolicyModal();
+            startEligibilityDiagnosis();
+        }
+
+        function openBlindSpotModal() { document.getElementById("blindSpotModal").classList.remove("hidden"); }
+        function closeBlindSpotModal() { document.getElementById("blindSpotModal").classList.add("hidden"); }
+        function submitBlindSpotDemand(e) {
+            e.preventDefault();
+            const text = document.getElementById("blindSpotText").value;
+            closeBlindSpotModal();
+            renderUserMessage(`[대리신청/제안] ${text}`);
+            renderBotMessage("제안해주신 소중한 의견이 경상남도 수산과 복지 사각지대 DB로 접수되었습니다.");
+        }
+
+        function openApiSettingsModal() {
+            document.getElementById("inputGeminiKey").value = apiKeys.gemini || "";
+            document.getElementById("inputPublicDataKey").value = apiKeys.publicData || "";
+            document.getElementById("apiSettingsModal").classList.remove("hidden");
+        }
+        function closeApiSettingsModal() {
+            document.getElementById("apiSettingsModal").classList.add("hidden");
+        }
+        function saveApiKeys() {
+            const geminiKey = document.getElementById("inputGeminiKey").value.trim();
+            const publicDataKey = document.getElementById("inputPublicDataKey").value.trim();
+            apiKeys.gemini = geminiKey;
+            apiKeys.publicData = publicDataKey;
+            localStorage.setItem("gemini_api_key", geminiKey);
+            localStorage.setItem("public_data_key", publicDataKey);
+            closeApiSettingsModal();
+            renderBotMessage("🔐 **API 키 설정이 저장되었습니다!**\nGoogle Gemini API 키 입력 시 AI 실시간 질문 답변 모드로 작동합니다.");
+        }
+
+        function toggleLargeFont() { document.body.classList.toggle("large-text"); }
+        function toggleHighContrast() { document.body.classList.toggle("high-contrast"); }
+
+        function escapeHtml(text) { return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+        function formatMarkdown(text) { return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>'); }
+
+        // Initial setup on DOM Content Loaded
+        window.addEventListener("DOMContentLoaded", () => {
+            renderComboboxItems();
+        });
+
+        document.getElementById("userTextInput").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                handleUserSubmit();
+            }
+        });
+    </script>
+</body>
+</html>

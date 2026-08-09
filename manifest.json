@@ -1,0 +1,38 @@
+{
+  "id": "./",
+  "name": "경상남도 어촌복지 원스톱 AI 도우미",
+  "short_name": "경남 어촌복지",
+  "description": "경상남도 연안 어촌주민을 위한 복지정책·맞춤진단·일손매칭 원스톱 도우미",
+  "lang": "ko-KR",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "background_color": "#f1f5f9",
+  "theme_color": "#FEE500",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "government",
+    "health",
+    "utilities",
+    "productivity"
+  ]
+}

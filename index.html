@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>경상남도 어촌복지 원스톱 AI 도우미</title>
+
+    <!-- PWA App Shell -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#FEE500">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="경남 어촌복지">
+    <link rel="apple-touch-icon" href="./icon-192.png">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons CDN -->
@@ -1538,6 +1547,17 @@
                 handleUserSubmit();
             }
         });
+    </script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+                    .catch(err => console.warn('[PWA] Service Worker registration failed:', err));
+            });
+        }
     </script>
 </body>
 </html>

@@ -370,11 +370,11 @@
                 <button onclick="switchPolicyCategory('PREGNANT')" id="polCatPREGNANT" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600">임산부</button>
                 <button onclick="switchPolicyCategory('SENIOR')" id="polCatSENIOR" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600">고령자</button>
                 <button onclick="switchPolicyCategory('DISABLED')" id="polCatDISABLED" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600">장애인</button>
-                <button onclick="switchPolicyCategory('BENCHMARK')" id="polCatBENCHMARK" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600">농림벤치마킹</button>
+                <button onclick="switchPolicyCategory('PROPOSAL')" id="polCatPROPOSAL" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600">연구제안</button>
             </div>
 
             <div class="py-1.5 shrink-0">
-                <input type="text" id="policySearchInput" onkeyup="renderPolicyList()" placeholder="정책명, 키워드 검색 (예: 검진, 쉼드림, 택시)" class="w-full px-3 py-1.5 text-xs bg-slate-50 border rounded-xl focus:outline-none focus:border-ocean-500">
+                <input type="text" id="policySearchInput" onkeyup="renderPolicyList()" placeholder="정책명, 지역, 복지영역 검색" class="w-full px-3 py-1.5 text-xs bg-slate-50 border rounded-xl focus:outline-none focus:border-ocean-500">
             </div>
 
             <div id="policyModalList" class="flex-1 overflow-y-auto space-y-2 pr-1 no-scrollbar pt-1">
@@ -537,10 +537,16 @@
                         <input type="checkbox" id="diagIsIsland" class="w-4 h-4 rounded text-ocean-600">
                         <span>도서/낙도/섬 지역 거주</span>
                     </label>
-                    <label class="flex items-center space-x-2 font-medium text-slate-800">
-                        <input type="checkbox" id="diagIsFisher" checked class="w-4 h-4 rounded text-ocean-600">
-                        <span>어업경영체 등록자 (또는 무급가족)</span>
-                    </label>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">어업 종사·등록 상태</label>
+                        <select id="diagFisherStatus" class="w-full p-2 border rounded-xl bg-slate-50 font-bold">
+                            <option value="REGISTERED" selected>어업경영체 등록</option>
+                            <option value="UNPAID_FAMILY">무급가족종사자</option>
+                            <option value="UNREGISTERED">미등록·비공식 종사</option>
+                            <option value="UNKNOWN">잘 모르겠음</option>
+                        </select>
+                        <input type="checkbox" id="diagIsFisher" checked class="hidden" aria-hidden="true">
+                    </div>
                     <label class="flex items-center space-x-2 font-medium text-slate-800">
                         <input type="checkbox" id="diagIsPregnant" class="w-4 h-4 rounded text-ocean-600">
                         <span>임신 중 또는 출산 후 1년 이내</span>
@@ -551,6 +557,47 @@
                     </label>
                 </div>
 
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <label class="flex items-center space-x-2 font-medium text-slate-800">
+                        <input type="checkbox" id="diagIsVulnerable" class="w-4 h-4 rounded text-ocean-600">
+                        <span>취약계층 해당</span>
+                    </label>
+                    <label class="flex items-center space-x-2 font-medium text-slate-800">
+                        <input type="checkbox" id="diagIsCoreVillage" class="w-4 h-4 rounded text-ocean-600">
+                        <span>핵심마을 대상</span>
+                    </label>
+                </div>
+
+                <div class="pt-2 border-t">
+                    <div class="font-black text-slate-800 mb-1.5">현재 가장 필요한 도움 <span class="text-[10px] font-normal text-slate-500">(복수 선택)</span></div>
+                    <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+                        <label class="flex items-center gap-1.5 p-1.5 bg-slate-50 rounded-lg"><input type="checkbox" name="diagNeed" value="HEALTH"> 의료·건강</label>
+                        <label class="flex items-center gap-1.5 p-1.5 bg-slate-50 rounded-lg"><input type="checkbox" name="diagNeed" value="CARE"> 돌봄</label>
+                        <label class="flex items-center gap-1.5 p-1.5 bg-slate-50 rounded-lg"><input type="checkbox" name="diagNeed" value="MOBILITY"> 이동·교통</label>
+                        <label class="flex items-center gap-1.5 p-1.5 bg-slate-50 rounded-lg"><input type="checkbox" name="diagNeed" value="HOUSING_SAFETY"> 주거·안전</label>
+                        <label class="flex items-center gap-1.5 p-1.5 bg-slate-50 rounded-lg"><input type="checkbox" name="diagNeed" value="INCOME_JOB"> 소득·일자리</label>
+                        <label class="flex items-center gap-1.5 p-1.5 bg-slate-50 rounded-lg"><input type="checkbox" name="diagNeed" value="ADMIN_INFO"> 행정·정보</label>
+                        <label class="flex items-center gap-1.5 p-1.5 bg-slate-50 rounded-lg"><input type="checkbox" name="diagNeed" value="FOOD_NUTRITION"> 식사·영양</label>
+                        <label class="flex items-center gap-1.5 p-1.5 bg-slate-50 rounded-lg"><input type="checkbox" name="diagNeed" value="RELATION"> 관계·고립</label>
+                    </div>
+                </div>
+
+                <div class="pt-2 border-t">
+                    <div class="font-black text-slate-800 mb-1.5">이용하기 어려운 이유 <span class="text-[10px] font-normal text-slate-500">(해당 시 선택)</span></div>
+                    <div class="grid grid-cols-1 gap-1 text-[11px]">
+                        <label class="flex items-center gap-1.5"><input type="checkbox" name="diagBarrier" value="INSTITUTIONAL"> 등록·연령·소득 등 자격기준 때문에 지원에서 제외됨</label>
+                        <label class="flex items-center gap-1.5"><input type="checkbox" name="diagBarrier" value="INFORMATION"> 어떤 제도가 있는지 잘 모름</label>
+                        <label class="flex items-center gap-1.5"><input type="checkbox" name="diagBarrier" value="ADMIN"> 서류·신청·방문 절차가 어려움</label>
+                        <label class="flex items-center gap-1.5"><input type="checkbox" name="diagBarrier" value="SPATIAL"> 거리·배·버스 등 이동이 어려움</label>
+                        <label class="flex items-center gap-1.5"><input type="checkbox" name="diagBarrier" value="SUPPLY"> 이용할 기관·인력·서비스가 부족함</label>
+                        <label class="flex items-center gap-1.5"><input type="checkbox" name="diagBarrier" value="RELATIONAL"> 도움 줄 사람 부족·관계/고립 문제가 있음</label>
+                    </div>
+                </div>
+
+                <div class="text-[10px] text-slate-500 bg-sky-50 border border-sky-100 rounded-xl p-2">
+                    v2는 공식자료에서 확인된 자격요건만 실제 판정에 사용하며, 판정기록은 이름·전화번호 없이 이 기기의 로컬 저장소에 구조화하여 누적합니다.
+                </div>
+
                 <div class="pt-2 flex space-x-2">
                     <button type="button" onclick="closeDiagnosisModal()" class="w-1/3 py-2.5 border rounded-xl font-bold">취소</button>
                     <button type="submit" class="w-2/3 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow">진단 실행하기</button>
@@ -559,75 +606,93 @@
         </div>
     </div>
 
-    <!-- Modal 5: OCR Document & Photo Scanner Simulator -->
+    <!-- Modal 5: Live Camera + Editable OCR Document Scanner -->
     <div id="ocrModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-4 shadow-2xl border border-slate-200 flex flex-col max-h-[90vh]">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-4 shadow-2xl border border-slate-200 flex flex-col max-h-[92vh]">
             <div class="flex justify-between items-center mb-2 pb-2 border-b shrink-0">
                 <h3 class="font-bold text-base text-slate-800 flex items-center space-x-2">
-                    <i class="fa-solid fa-camera text-ocean-600"></i>
+                    <svg class="w-4 h-4 text-ocean-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M9.5 4 8.2 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-3.2l-1.3-2h-5ZM12 17.2A4.2 4.2 0 1 1 12 8.8a4.2 4.2 0 0 1 0 8.4Z"/>
+                    </svg>
                     <span>서류·부상 사진 촬영 및 OCR 스캔</span>
                 </h3>
                 <button onclick="closeOcrModal()" class="text-slate-400 text-xl font-bold hover:text-slate-600">&times;</button>
             </div>
 
             <div class="flex-1 overflow-y-auto space-y-3 no-scrollbar py-1">
-                <p class="text-xs text-slate-600">신분증, 어업경영체 등록증, 병원 진단서, 또는 부상·환부 사진을 직접 촬영하거나 갤러리에서 첨부하세요.</p>
+                <p class="text-xs text-slate-600">실시간 카메라로 촬영하거나 갤러리에서 사진을 고른 뒤, 문서 종류와 파일명을 선택·직접 입력하여 분석합니다.</p>
 
-                <!-- Camera Stream & Image Preview Area -->
-                <div class="relative bg-slate-900 rounded-2xl overflow-hidden min-h-[200px] flex items-center justify-center border-2 border-dashed border-slate-300">
-                    <video id="ocrVideo" autoplay playsinline class="w-full h-52 object-cover hidden"></video>
-                    <img id="ocrImagePreview" class="w-full h-52 object-cover hidden" alt="촬영된 서류 이미지">
-                    
-                    <div id="ocrPlaceholder" class="text-center p-4 text-slate-400 space-y-2">
-                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400"></i>
-                        <p class="text-xs font-semibold">카메라를 켜거나 사진 파일을 선택하세요</p>
+                <!-- Live Camera Stream & Image Preview Area -->
+                <div class="relative bg-slate-900 rounded-2xl overflow-hidden min-h-[220px] flex items-center justify-center border-2 border-dashed border-slate-300">
+                    <video id="ocrVideo" autoplay playsinline muted class="w-full h-56 object-cover hidden"></video>
+                    <img id="ocrImagePreview" class="w-full h-56 object-contain bg-slate-950 hidden" alt="촬영 또는 선택한 이미지 미리보기">
+
+                    <div id="ocrPlaceholder" class="text-center p-4 text-slate-300 space-y-2">
+                        <svg class="w-10 h-10 mx-auto text-amber-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm1 15h-2v-2h2Zm0-4h-2V7h2Z"/>
+                        </svg>
+                        <p id="ocrPlaceholderTitle" class="text-xs font-semibold text-white">카메라 연결을 준비하고 있습니다.</p>
+                        <p id="ocrPlaceholderHelp" class="text-[10px] text-slate-400">카메라 권한을 허용하면 이 영역에 실시간 화면이 표시됩니다.</p>
                     </div>
 
                     <div id="ocrScanOverlay" class="absolute inset-0 bg-ocean-500/20 hidden flex-col items-center justify-center">
                         <div class="w-full h-1 bg-cyan-400 shadow-[0_0_15px_#22d3ee] animate-bounce"></div>
-                        <span class="mt-4 px-3 py-1 bg-black/70 text-cyan-300 text-xs font-bold rounded-full animate-pulse">
-                            <i class="fa-solid fa-spinner animate-spin mr-1"></i> AI 서류·환부 분석 중...
-                        </span>
+                        <span class="mt-4 px-3 py-1 bg-black/70 text-cyan-300 text-xs font-bold rounded-full animate-pulse">AI 서류·환부 분석 중...</span>
                     </div>
                 </div>
 
-                <!-- Camera / Gallery Upload Actions -->
-                <div class="grid grid-cols-2 gap-2 pt-1">
-                    <button id="btnStartCamera" onclick="startCamera()" class="py-2.5 px-3 bg-ocean-600 hover:bg-ocean-700 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 shadow">
-                        <i class="fa-solid fa-video"></i>
-                        <span>실시간 카메라</span>
+                <div id="cameraStatus" class="text-[10px] rounded-lg px-2.5 py-2 bg-slate-50 text-slate-500 border border-slate-200">
+                    카메라 상태: 연결 대기
+                </div>
+
+                <!-- Camera / Gallery Actions -->
+                <div class="grid grid-cols-3 gap-2">
+                    <button id="btnStartCamera" type="button" onclick="startCamera()" class="py-2.5 px-2 bg-ocean-600 hover:bg-ocean-700 text-white rounded-xl text-[11px] font-bold shadow">
+                        카메라 연결
                     </button>
-                    <button onclick="document.getElementById('ocrFileInput').click()" class="py-2.5 px-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 shadow">
-                        <i class="fa-solid fa-images"></i>
-                        <span>갤러리 사진 선택</span>
+                    <button id="btnCapturePhoto" type="button" onclick="capturePhoto()" disabled class="py-2.5 px-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl text-[11px] font-bold shadow">
+                        사진 촬영
+                    </button>
+                    <button type="button" onclick="document.getElementById('ocrFileInput').click()" class="py-2.5 px-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-[11px] font-bold shadow">
+                        갤러리 선택
                     </button>
                     <input type="file" id="ocrFileInput" accept="image/*" class="hidden" onchange="handleOcrFileUpload(event)">
                 </div>
 
-                <div id="cameraControls" class="hidden pt-1">
-                    <button onclick="capturePhotoAndAnalyze()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-circle-dot text-rose-400 animate-pulse text-sm"></i>
-                        <span>사진 촬영 및 OCR 분석</span>
+                <!-- Word-like editable document/file selection -->
+                <div class="border-t pt-3 space-y-2.5">
+                    <div>
+                        <label for="ocrDocTypeInput" class="text-[11px] font-bold text-slate-600 block mb-1">문서·사진 종류</label>
+                        <div id="ocrDocTypeCombo" class="relative" onmouseenter="showOcrDocTypeOptions()" onmouseleave="scheduleHideOcrDocTypeOptions()">
+                            <div class="flex items-stretch">
+                                <input id="ocrDocTypeInput" type="text" autocomplete="off" placeholder="목록에서 선택하거나 직접 입력" onfocus="showOcrDocTypeOptions()" oninput="filterOcrDocTypeOptions()" class="flex-1 min-w-0 px-3 py-2.5 border border-slate-300 rounded-l-xl text-xs outline-none focus:border-ocean-500 bg-white">
+                                <button type="button" onclick="toggleOcrDocTypeOptions()" class="w-10 border border-l-0 border-slate-300 rounded-r-xl bg-slate-50 hover:bg-slate-100 text-slate-600" aria-label="문서 종류 목록 열기">⌄</button>
+                            </div>
+                            <div id="ocrDocTypeOptions" class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-20 hidden overflow-hidden">
+                                <button type="button" data-value="주민등록증" onclick="selectOcrDocType('주민등록증')" class="ocr-doc-option w-full text-left px-3 py-2 text-xs hover:bg-ocean-50">주민등록증</button>
+                                <button type="button" data-value="어업경영체 등록확인서" onclick="selectOcrDocType('어업경영체 등록확인서')" class="ocr-doc-option w-full text-left px-3 py-2 text-xs hover:bg-ocean-50">어업경영체 등록확인서</button>
+                                <button type="button" data-value="의사진단서 또는 소견서" onclick="selectOcrDocType('의사진단서 또는 소견서')" class="ocr-doc-option w-full text-left px-3 py-2 text-xs hover:bg-ocean-50">의사진단서 또는 소견서</button>
+                                <button type="button" data-value="부상·환부 사진" onclick="selectOcrDocType('부상·환부 사진')" class="ocr-doc-option w-full text-left px-3 py-2 text-xs hover:bg-ocean-50">부상·환부 사진</button>
+                                <button type="button" data-value="기타 서류·사진" onclick="selectOcrDocType('기타 서류·사진')" class="ocr-doc-option w-full text-left px-3 py-2 text-xs hover:bg-ocean-50">기타 서류·사진</button>
+                            </div>
+                        </div>
+                        <p class="text-[9px] text-slate-400 mt-1">마우스를 올리거나 입력창을 누르면 목록이 열립니다. 목록 선택 후에도 내용을 직접 수정할 수 있습니다.</p>
+                    </div>
+
+                    <div>
+                        <label for="ocrFileNameInput" class="text-[11px] font-bold text-slate-600 block mb-1">파일명</label>
+                        <input id="ocrFileNameInput" type="text" placeholder="갤러리 선택 시 파일명이 자동 입력되며 직접 수정 가능" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs outline-none focus:border-ocean-500 bg-white">
+                    </div>
+                </div>
+
+                <div class="pt-1">
+                    <button id="btnRunOcr" type="button" onclick="runSelectedOcrAnalysis()" disabled class="w-full py-2.5 bg-rose-600 hover:bg-rose-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold shadow">
+                        OCR·사진 분석 실행
                     </button>
                 </div>
 
-                <!-- Preset Sample Document / Injury Buttons -->
-                <div class="border-t pt-3">
-                    <span class="text-[11px] font-bold text-slate-500 block mb-1.5">또는 샘플 서류/사진으로 바로 체험해보세요:</span>
-                    <div class="grid grid-cols-2 gap-1.5">
-                        <button onclick="simulateOcrScan('ID')" class="p-2 bg-slate-100 hover:bg-ocean-50 border rounded-xl text-[11px] font-bold text-slate-700 text-center flex items-center justify-center gap-1">
-                            <span>🪪 주민등록증</span>
-                        </button>
-                        <button onclick="simulateOcrScan('FISHER')" class="p-2 bg-slate-100 hover:bg-ocean-50 border rounded-xl text-[11px] font-bold text-slate-700 text-center flex items-center justify-center gap-1">
-                            <span>📜 어업경영체</span>
-                        </button>
-                        <button onclick="simulateOcrScan('MEDICAL')" class="p-2 bg-slate-100 hover:bg-ocean-50 border rounded-xl text-[11px] font-bold text-slate-700 text-center flex items-center justify-center gap-1">
-                            <span>🏥 의사진단서</span>
-                        </button>
-                        <button onclick="simulateOcrScan('INJURY')" class="p-2 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl text-[11px] font-bold text-rose-700 text-center flex items-center justify-center gap-1">
-                            <span>🩹 기타(부상/환부)</span>
-                        </button>
-                    </div>
+                <div class="text-[10px] text-slate-500 bg-sky-50 border border-sky-100 rounded-xl p-2 leading-relaxed">
+                    현재 버전의 OCR 결과는 시연용입니다. 촬영·파일선택·문서종류·파일명 입력은 실제 동작하며, 향후 공식 OCR/API와 연결하면 동일한 입력 구조를 그대로 사용할 수 있습니다.
                 </div>
             </div>
         </div>
@@ -688,9 +753,57 @@
                 </div>
             </div>
 
-            <div class="pt-2 flex justify-end space-x-2">
-                <button onclick="closeApiSettingsModal()" class="px-3 py-2 border rounded-xl font-bold text-xs">닫기</button>
-                <button onclick="saveApiKeys()" class="px-4 py-2 bg-ocean-600 hover:bg-ocean-700 text-white font-bold rounded-xl text-xs shadow">저장하기</button>
+            <div class="pt-2 flex items-center justify-between gap-2">
+                <button onclick="closeApiSettingsModal(); openAdminDashboard();" class="px-3 py-2 bg-violet-50 border border-violet-200 text-violet-800 rounded-xl font-bold text-xs">📊 행정 분석</button>
+                <div class="flex justify-end space-x-2">
+                    <button onclick="closeApiSettingsModal()" class="px-3 py-2 border rounded-xl font-bold text-xs">닫기</button>
+                    <button onclick="saveApiKeys()" class="px-4 py-2 bg-ocean-600 hover:bg-ocean-700 text-white font-bold rounded-xl text-xs shadow">저장하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 8: v2 Administrative Analytics Dashboard (local demo) -->
+    <div id="adminAnalyticsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 flex flex-col max-h-[92vh] overflow-hidden">
+            <div class="p-4 pb-2 border-b flex items-center justify-between shrink-0">
+                <div>
+                    <h3 class="font-black text-base text-violet-900">📊 어촌복지 정책공백 관측 · 행정분석</h3>
+                    <p class="text-[10px] text-slate-500 mt-0.5">v2 시연용 · 이 기기에서 수행한 익명 구조화 판정기록</p>
+                </div>
+                <button onclick="closeAdminDashboard()" class="text-slate-400 text-xl font-bold">&times;</button>
+            </div>
+            <div class="p-4 overflow-y-auto no-scrollbar space-y-3 text-xs">
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="col-span-1 p-3 rounded-2xl bg-violet-50 border border-violet-100 text-center">
+                        <div id="adminTotalCases" class="text-2xl font-black text-violet-900">0</div>
+                        <div class="text-[10px] text-violet-700">누적 판정건수</div>
+                    </div>
+                    <div class="col-span-2 p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                        <div class="font-black text-slate-800 mb-1">분석 원칙</div>
+                        <div class="text-[10px] text-slate-600 leading-relaxed">지원 가능 여부뿐 아니라 탈락사유, 생활수요, 이용장벽, 6대 사각지대를 함께 기록합니다.</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="p-2.5 border rounded-2xl"><div class="font-black mb-1 text-slate-800">지역별 판정</div><div id="adminRegionStats" class="text-[10px]"></div></div>
+                    <div class="p-2.5 border rounded-2xl"><div class="font-black mb-1 text-rose-800">6대 사각지대</div><div id="adminGapStats" class="text-[10px]"></div></div>
+                    <div class="p-2.5 border rounded-2xl"><div class="font-black mb-1 text-ocean-800">복지수요</div><div id="adminNeedStats" class="text-[10px]"></div></div>
+                    <div class="p-2.5 border rounded-2xl"><div class="font-black mb-1 text-amber-800">자격 미충족 사유</div><div id="adminFailStats" class="text-[10px]"></div></div>
+                </div>
+                <div>
+                    <div class="font-black text-slate-800 mb-1">최근 판정기록</div>
+                    <div id="adminRecentCases" class="space-y-1.5"></div>
+                </div>
+                <div class="p-2 bg-amber-50 border border-amber-100 rounded-xl text-[10px] text-amber-800">
+                    ※ 현재는 시연용 localStorage DB입니다. 공식 운영 시 서버 DB·접근권한·개인정보 보호·행정 API 연계 구조로 전환해야 합니다.
+                </div>
+            </div>
+            <div class="p-3 border-t bg-slate-50 flex justify-between gap-2 shrink-0">
+                <button onclick="clearV2DiagnosisLogs()" class="px-3 py-2 border border-rose-200 text-rose-700 bg-white rounded-xl text-[11px] font-bold">기록 초기화</button>
+                <div class="flex gap-2">
+                    <button onclick="exportV2DiagnosisCsv()" class="px-3 py-2 bg-emerald-600 text-white rounded-xl text-[11px] font-bold">CSV 내보내기</button>
+                    <button onclick="closeAdminDashboard()" class="px-3 py-2 bg-slate-700 text-white rounded-xl text-[11px] font-bold">닫기</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1051,59 +1164,144 @@
             window.speechSynthesis.speak(utterance);
         }
 
+        let ocrCameraStream = null;
+        let ocrHasImage = false;
+        let ocrHideTimer = null;
+
         function openOcrModal() {
             resetOcrUI();
             document.getElementById("ocrModal").classList.remove("hidden");
+            // 실제 카메라 권한 요청 및 실시간 영상 연결을 즉시 시도합니다.
+            setTimeout(() => startCamera(), 120);
         }
 
         function closeOcrModal() {
             stopCamera();
+            hideOcrDocTypeOptions();
             document.getElementById("ocrModal").classList.add("hidden");
+        }
+
+        function setCameraStatus(message, tone = 'neutral') {
+            const el = document.getElementById('cameraStatus');
+            if (!el) return;
+            el.textContent = `카메라 상태: ${message}`;
+            el.className = 'text-[10px] rounded-lg px-2.5 py-2 border';
+            if (tone === 'ok') el.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
+            else if (tone === 'warn') el.classList.add('bg-amber-50', 'text-amber-700', 'border-amber-200');
+            else if (tone === 'error') el.classList.add('bg-rose-50', 'text-rose-700', 'border-rose-200');
+            else el.classList.add('bg-slate-50', 'text-slate-500', 'border-slate-200');
+        }
+
+        async function requestCameraStream() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error('이 브라우저는 실시간 카메라 API를 지원하지 않습니다.');
+            }
+            try {
+                return await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: { ideal: 'environment' },
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: false
+                });
+            } catch (firstError) {
+                // 일부 PC 웹캠은 facingMode 제약을 거부하므로 일반 카메라로 한 번 더 시도합니다.
+                return await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            }
         }
 
         async function startCamera() {
             const video = document.getElementById("ocrVideo");
             const placeholder = document.getElementById("ocrPlaceholder");
             const preview = document.getElementById("ocrImagePreview");
-            const controls = document.getElementById("cameraControls");
+            const captureBtn = document.getElementById('btnCapturePhoto');
 
+            stopCamera();
             preview.classList.add("hidden");
+            placeholder.classList.remove("hidden");
+            document.getElementById('ocrPlaceholderTitle').textContent = '카메라 권한을 확인하고 있습니다.';
+            document.getElementById('ocrPlaceholderHelp').textContent = '브라우저가 카메라 사용을 물으면 허용을 선택하세요.';
+            setCameraStatus('연결 중...', 'neutral');
 
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: { ideal: "environment" } } 
-                });
+                const stream = await requestCameraStream();
+                ocrCameraStream = stream;
                 video.srcObject = stream;
+                await video.play();
                 video.classList.remove("hidden");
                 placeholder.classList.add("hidden");
-                if (controls) controls.classList.remove("hidden");
+                if (captureBtn) captureBtn.disabled = false;
+                setCameraStatus('실시간 연결됨', 'ok');
             } catch (err) {
                 console.warn("Camera access failed:", err);
                 video.classList.add("hidden");
                 placeholder.classList.remove("hidden");
-                placeholder.innerHTML = `
-                    <i class="fa-solid fa-triangle-exclamation text-amber-500 text-3xl mb-1"></i>
-                    <p class="text-xs font-semibold text-amber-700">웹카메라를 직접 연결할 수 없습니다.</p>
-                    <p class="text-[10px] text-slate-500">아래 '갤러리 사진 선택' 또는 샘플 버튼을 눌러 서류/부상 사진을 선택해 보세요.</p>
-                `;
+                document.getElementById('ocrPlaceholderTitle').textContent = '실시간 카메라를 연결하지 못했습니다.';
+                document.getElementById('ocrPlaceholderHelp').textContent = '카메라 권한을 허용한 뒤 다시 연결하거나 갤러리 사진을 선택하세요.';
+                if (captureBtn) captureBtn.disabled = true;
+                setCameraStatus(err && err.name === 'NotAllowedError' ? '권한이 거부됨' : '연결 실패', 'error');
             }
         }
 
         function stopCamera() {
             const video = document.getElementById("ocrVideo");
-            if (video && video.srcObject) {
-                const stream = video.srcObject;
-                const tracks = stream.getTracks();
-                tracks.forEach(track => track.stop());
-                video.srcObject = null;
+            const stream = ocrCameraStream || (video ? video.srcObject : null);
+            if (stream && typeof stream.getTracks === 'function') {
+                stream.getTracks().forEach(track => track.stop());
             }
-            if (video) video.classList.add("hidden");
-            const controls = document.getElementById("cameraControls");
-            if (controls) controls.classList.add("hidden");
+            ocrCameraStream = null;
+            if (video) {
+                video.pause();
+                video.srcObject = null;
+                video.classList.add("hidden");
+            }
+            const captureBtn = document.getElementById('btnCapturePhoto');
+            if (captureBtn) captureBtn.disabled = true;
+        }
+
+        function makeCapturedFileName() {
+            const type = (document.getElementById('ocrDocTypeInput').value || '촬영사진').trim();
+            const safeType = type.replace(/[\/:*?"<>|]/g, '_').replace(/\s+/g, '_');
+            const now = new Date();
+            const stamp = [
+                now.getFullYear(),
+                String(now.getMonth() + 1).padStart(2, '0'),
+                String(now.getDate()).padStart(2, '0'),
+                '_',
+                String(now.getHours()).padStart(2, '0'),
+                String(now.getMinutes()).padStart(2, '0'),
+                String(now.getSeconds()).padStart(2, '0')
+            ].join('');
+            return `${safeType}_${stamp}.jpg`;
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById("ocrVideo");
+            const preview = document.getElementById("ocrImagePreview");
+            if (!video || video.classList.contains("hidden") || !video.srcObject || !video.videoWidth) {
+                setCameraStatus('촬영할 실시간 영상이 없습니다.', 'warn');
+                return;
+            }
+
+            const canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            preview.src = canvas.toDataURL("image/jpeg", 0.92);
+            preview.classList.remove("hidden");
+            document.getElementById("ocrPlaceholder").classList.add("hidden");
+            document.getElementById('ocrFileNameInput').value = makeCapturedFileName();
+            ocrHasImage = true;
+            stopCamera();
+            setCameraStatus('사진 촬영 완료', 'ok');
+            updateOcrRunButton();
         }
 
         function handleOcrFileUpload(e) {
-            const file = e.target.files[0];
+            const file = e.target.files && e.target.files[0];
             if (!file) return;
 
             stopCamera();
@@ -1114,66 +1312,129 @@
                 preview.src = evt.target.result;
                 preview.classList.remove("hidden");
                 placeholder.classList.add("hidden");
-
-                runOcrAnalysis("선택한 사진 파일");
+                document.getElementById('ocrFileNameInput').value = file.name;
+                ocrHasImage = true;
+                setCameraStatus('갤러리 사진 선택 완료', 'ok');
+                updateOcrRunButton();
             };
             reader.readAsDataURL(file);
         }
 
-        function capturePhotoAndAnalyze() {
-            const video = document.getElementById("ocrVideo");
-            const preview = document.getElementById("ocrImagePreview");
-            
-            if (!video || video.classList.contains("hidden")) return;
-
-            const canvas = document.createElement("canvas");
-            canvas.width = video.videoWidth || 640;
-            canvas.height = video.videoHeight || 480;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            preview.src = canvas.toDataURL("image/jpeg");
-            preview.classList.remove("hidden");
-            video.classList.add("hidden");
-            stopCamera();
-
-            runOcrAnalysis("촬영한 사진");
+        function showOcrDocTypeOptions() {
+            if (ocrHideTimer) clearTimeout(ocrHideTimer);
+            const el = document.getElementById('ocrDocTypeOptions');
+            if (el) el.classList.remove('hidden');
+            filterOcrDocTypeOptions();
         }
 
-        function runOcrAnalysis(sourceName) {
+        function hideOcrDocTypeOptions() {
+            const el = document.getElementById('ocrDocTypeOptions');
+            if (el) el.classList.add('hidden');
+        }
+
+        function scheduleHideOcrDocTypeOptions() {
+            if (ocrHideTimer) clearTimeout(ocrHideTimer);
+            ocrHideTimer = setTimeout(hideOcrDocTypeOptions, 180);
+        }
+
+        function toggleOcrDocTypeOptions() {
+            const el = document.getElementById('ocrDocTypeOptions');
+            if (!el) return;
+            if (el.classList.contains('hidden')) showOcrDocTypeOptions();
+            else hideOcrDocTypeOptions();
+        }
+
+        function filterOcrDocTypeOptions() {
+            const q = (document.getElementById('ocrDocTypeInput').value || '').trim().toLowerCase();
+            document.querySelectorAll('.ocr-doc-option').forEach(btn => {
+                const value = (btn.dataset.value || '').toLowerCase();
+                btn.classList.toggle('hidden', !!q && !value.includes(q));
+            });
+            updateOcrRunButton();
+        }
+
+        function selectOcrDocType(value) {
+            const input = document.getElementById('ocrDocTypeInput');
+            input.value = value;
+            hideOcrDocTypeOptions();
+            if (ocrHasImage && !document.getElementById('ocrFileNameInput').value.trim()) {
+                document.getElementById('ocrFileNameInput').value = makeCapturedFileName();
+            }
+            updateOcrRunButton();
+        }
+
+        function updateOcrRunButton() {
+            const btn = document.getElementById('btnRunOcr');
+            if (!btn) return;
+            const docType = (document.getElementById('ocrDocTypeInput')?.value || '').trim();
+            btn.disabled = !(ocrHasImage && docType);
+        }
+
+        function runSelectedOcrAnalysis() {
+            const docType = (document.getElementById('ocrDocTypeInput').value || '').trim();
+            const fileNameEl = document.getElementById('ocrFileNameInput');
+            let fileName = (fileNameEl.value || '').trim();
+
+            if (!ocrHasImage) {
+                setCameraStatus('먼저 카메라로 촬영하거나 갤러리 사진을 선택하세요.', 'warn');
+                return;
+            }
+            if (!docType) {
+                showOcrDocTypeOptions();
+                document.getElementById('ocrDocTypeInput').focus();
+                return;
+            }
+            if (!fileName) {
+                fileName = makeCapturedFileName();
+                fileNameEl.value = fileName;
+            }
+
+            runOcrAnalysis(docType, fileName);
+        }
+
+        function runOcrAnalysis(docType, fileName) {
             const overlay = document.getElementById("ocrScanOverlay");
             overlay.classList.remove("hidden");
+            overlay.classList.add('flex');
 
             setTimeout(() => {
                 overlay.classList.add("hidden");
+                overlay.classList.remove('flex');
                 closeOcrModal();
-                renderUserMessage(`📷 [${sourceName} 스캔 및 전송 완료]`);
-                renderBotMessage(`AI 분석 완료: **${sourceName}** 정보가 수신되었습니다.\n인적사항 및 부상 상태 분석 데이터가 **시·군 보건소, 순회진료선 및 쉼드림 대체인력 지원금 전담 접수처**로 전달되었습니다.`);
-            }, 1800);
+                renderUserMessage(`📷 [${docType} / ${fileName}]`);
+                renderBotMessage(`OCR·사진 분석 시연 완료: **${docType}**이(가) 등록되었습니다.\n파일명: **${fileName}**\n현재는 시연용 분석이며 실제 행정기관으로 전송되지는 않습니다.`);
+            }, 1100);
         }
 
         function resetOcrUI() {
-            document.getElementById("ocrImagePreview").classList.add("hidden");
-            document.getElementById("ocrVideo").classList.add("hidden");
-            document.getElementById("ocrPlaceholder").classList.remove("hidden");
-            document.getElementById("ocrScanOverlay").classList.add("hidden");
-            document.getElementById("cameraControls").classList.add("hidden");
-        }
-
-        function simulateOcrScan(type) {
-            closeOcrModal();
-            let docName = "주민등록증";
-            if (type === 'FISHER') docName = "어업경영체 등록 확인서";
-            if (type === 'MEDICAL') docName = "의사 진단서 및 소견서";
-            if (type === 'INJURY') docName = "부상·환부 및 현장 사진";
-
-            renderUserMessage(`📷 [${docName} 선택/스캔 완료]`);
-            
-            if (type === 'INJURY') {
-                renderBotMessage(`AI 사진 분석 완료: **${docName}**이(가) 등록되었습니다.\n환부 사진이 **시·군 보건소, 순회 진료선 및 어업인 든든 쉼드림(대체인력 수당)** 담당자에게 전달되었습니다.`, GYEONGNAM_POLICIES.find(p => p.id === "GN-WEL-MISC-01"));
-            } else {
-                renderBotMessage(`AI OCR 서류 인식 완료: **${docName}**이(가) 확인되었습니다.\n성명, 주민번호, 어업 유형이 확인되어 모의 신청서에 반영되었습니다.`);
+            stopCamera();
+            ocrHasImage = false;
+            const preview = document.getElementById("ocrImagePreview");
+            const video = document.getElementById("ocrVideo");
+            const placeholder = document.getElementById("ocrPlaceholder");
+            const overlay = document.getElementById("ocrScanOverlay");
+            if (preview) {
+                preview.removeAttribute('src');
+                preview.classList.add("hidden");
             }
+            if (video) video.classList.add("hidden");
+            if (placeholder) placeholder.classList.remove("hidden");
+            if (overlay) {
+                overlay.classList.add("hidden");
+                overlay.classList.remove('flex');
+            }
+            const title = document.getElementById('ocrPlaceholderTitle');
+            const help = document.getElementById('ocrPlaceholderHelp');
+            if (title) title.textContent = '카메라 연결을 준비하고 있습니다.';
+            if (help) help.textContent = '카메라 권한을 허용하면 이 영역에 실시간 화면이 표시됩니다.';
+            const docInput = document.getElementById('ocrDocTypeInput');
+            const fileInput = document.getElementById('ocrFileNameInput');
+            const filePicker = document.getElementById('ocrFileInput');
+            if (docInput) docInput.value = '';
+            if (fileInput) fileInput.value = '';
+            if (filePicker) filePicker.value = '';
+            setCameraStatus('연결 대기');
+            updateOcrRunButton();
         }
 
         function renderUserMessage(text) {
@@ -1804,6 +2065,10 @@
             enableInstallButtonDragging();
         });
     </script>
+
+    <!-- v2 Policy DB & Eligibility Engine -->
+    <script src="./v2-policy-data.js"></script>
+    <script src="./v2-engine.js"></script>
 
     <!-- PWA Service Worker Registration -->
     <script>

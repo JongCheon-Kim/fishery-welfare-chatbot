@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'gn-fishing-welfare-pwa-v1.4.0';
+const CACHE_VERSION = 'gn-fishing-welfare-pwa-v2.0.0-alpha2';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -7,7 +7,9 @@ const APP_SHELL = [
   './index.html',
   './manifest.json',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './v2-policy-data.js',
+  './v2-engine.js'
 ];
 
 self.addEventListener('install', (event) => {
